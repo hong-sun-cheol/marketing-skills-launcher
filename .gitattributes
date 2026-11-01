@@ -6,6 +6,7 @@
 *.vbs text eol=crlf
 # 배포용 zip에는 넣지 않는다 (개발·배포 도구)
 /.github export-ignore
+/docs export-ignore
 RELEASE_NOTES.md export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore

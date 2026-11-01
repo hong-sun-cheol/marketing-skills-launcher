@@ -22,4 +22,9 @@ jobs:
       - name: 릴리스 올리기
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "marketing-skills-launcher-$V.zip" --title "$V" --notes-file RELEASE_NOTES.md
+        # 같은 zip을 버전 없는 이름으로 한 부 더 붙인다 → 소개 페이지의 고정 주소
+        # (releases/latest/download/marketing-skills-launcher.zip)가 늘 최신판을 가리킨다.
+        # 두 파일은 내용이 같아서, 설치된 명령판(update.js는 첫 .zip을 고름)이 어느 쪽을 받아도 같다.
+        run: |
+          cp "marketing-skills-launcher-$V.zip" marketing-skills-launcher.zip
+          gh release create "$GITHUB_REF_NAME" "marketing-skills-launcher-$V.zip" marketing-skills-launcher.zip --title "$V" --notes-file RELEASE_NOTES.md

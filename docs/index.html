@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>마케팅 스킬 명령판 | Claude로 내 가게 마케팅 글 쓰는 무료 프로그램 - 이플립</title>
+<meta name="description" content="칸을 채우고 실행을 누르면 Claude가 인스타그램 글, 광고 문구, 블로그 점검, 마케팅 계획을 내 사업 정보에 맞춰 써 주는 무료 Windows 프로그램. Claude Pro 이상 구독이 필요합니다.">
+<!-- 본 사이트(eflipsolution.xyz/marketing-skills)에 올라가면 아래 canonical을 그 주소로 바꾼다 -->
+<link rel="canonical" href="https://hong-sun-cheol.github.io/marketing-skills-launcher/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="이플립 솔루션">
+<meta property="og:title" content="마케팅 스킬 명령판 · 칸을 채우고 [실행]을 누르면, 내 가게 마케팅 글이 나옵니다">
+<meta property="og:description" content="인스타그램 글부터 마케팅 계획까지 52가지 일을 Claude가 내 사업 정보에 맞춰 씁니다. 프로그램은 무료, Claude Pro 이상 구독 필요.">
+<meta property="og:image" content="img/03-result.jpg">
+<meta name="theme-color" content="#0f1235">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f46e5'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='700' font-size='34' text-anchor='middle' fill='white'%3Ee%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "마케팅 스킬 명령판",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Windows 10, Windows 11",
+  "description": "칸을 채우고 실행을 누르면 Claude가 내 사업 정보에 맞춰 마케팅 글·계획·점검 결과를 써 주는 무료 프로그램. Claude Pro 이상 구독 또는 API 키가 필요합니다.",
+  "softwareVersion": "0.1.2",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
+  "downloadUrl": "https://github.com/hong-sun-cheol/marketing-skills-launcher/releases/latest/download/marketing-skills-launcher.zip",
+  "license": "https://opensource.org/licenses/MIT",
+  "publisher": { "@type": "Organization", "name": "주식회사 이플립", "url": "https://eflipsolution.xyz" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "정말 무료인가요?", "acceptedAnswer": { "@type": "Answer", "text": "명령판은 무료입니다. 글을 만드는 Claude는 본인 계정의 유료 구독(Pro 이상)이나 API 키로 돌아갑니다." } },
+    { "@type": "Question", "name": "코딩을 전혀 몰라도 되나요?", "acceptedAnswer": { "@type": "Answer", "text": "설치는 파일 더블클릭으로 끝나고, 쓰는 동안에는 칸을 채우고 버튼을 누릅니다. 단, Claude Code를 처음 설치할 때 명령 한 줄을 붙여 넣는 단계가 한 번 있습니다. 시작 준비 화면이 그 한 줄을 그대로 보여 줍니다." } },
+    { "@type": "Question", "name": "만들어진 글을 그대로 올려도 되나요?", "acceptedAnswer": { "@type": "Answer", "text": "꼭 읽어 보고 고쳐서 쓰세요. 숫자·후기처럼 근거가 없는 내용은 [확인 필요]로 표시되지만, 최종 확인은 쓰는 분의 몫입니다." } },
+    { "@type": "Question", "name": "Mac에서도 되나요?", "acceptedAnswer": { "@type": "Answer", "text": "설치 파일은 들어 있지만 아직 실제 Mac에서 시험을 마치지 못했습니다. 써 보시고 막히는 곳을 알려 주시면 고치겠습니다." } },
+    { "@type": "Question", "name": "가게가 두 개면요?", "acceptedAnswer": { "@type": "Answer", "text": "사업 정보를 브랜드별로 따로 저장하고, 실행할 때 골라 쓸 수 있습니다." } },
+    { "@type": "Question", "name": "막히면 어디에 물어보나요?", "acceptedAnswer": { "@type": "Answer", "text": "이플립 솔루션 문의 페이지(eflipsolution.xyz/contact)로 연락 주세요. 업데이트가 안 될 때는 프로그램 폴더의 app/logs/update.log 파일을 함께 보내 주시면 빨리 찾을 수 있습니다." } }
+  ]
+}
+</script>
+<style>
+:root {
+  --bg: #f4f6fb; --surface: #ffffff; --surface-2: #f8f9fd; --ink: #111827; --muted: #5d6883; --line: #e3e7f0;
+  --accent: #4f46e5; --accent-soft: #eef0ff; --accent-line: #c7cbff;
+  --grad: linear-gradient(135deg, #4f46e5 0%, #6d5bf5 45%, #06b6d4 100%);
+  --hero: linear-gradient(135deg, #0f1235 0%, #1e1b5e 55%, #133a5c 100%);
+  --warn: #b45309; --warn-soft: #fff6e8;
+  --shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 12px 32px -16px rgba(30, 27, 94, .22);
+  --radius: 16px;
+  --sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: ui-monospace, Consolas, "D2Coding", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0d1a; --surface: #141729; --surface-2: #181c31; --ink: #e8eaf6; --muted: #a0a8c8; --line: #262b47;
+    --accent: #8b85ff; --accent-soft: #1f2148; --accent-line: #3b3d7a;
+    --grad: linear-gradient(135deg, #6d63ff 0%, #8b7bff 45%, #22c5e0 100%);
+    --hero: linear-gradient(135deg, #0a0c26 0%, #19164d 55%, #0e2c47 100%);
+    --warn: #fbbf24; --warn-soft: #2d2210;
+    --shadow: 0 12px 32px -16px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0d1a; --surface: #141729; --surface-2: #181c31; --ink: #e8eaf6; --muted: #a0a8c8; --line: #262b47;
+  --accent: #8b85ff; --accent-soft: #1f2148; --accent-line: #3b3d7a;
+  --grad: linear-gradient(135deg, #6d63ff 0%, #8b7bff 45%, #22c5e0 100%);
+  --hero: linear-gradient(135deg, #0a0c26 0%, #19164d 55%, #0e2c47 100%);
+  --warn: #fbbf24; --warn-soft: #2d2210;
+  --shadow: 0 12px 32px -16px rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.7;
+  letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; word-break: keep-all; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+img { max-width: 100%; height: auto; display: block; }
+code, .tbd { white-space: nowrap; }
+code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); color: var(--ink); padding: 1px 6px; border-radius: 6px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+section { padding: 64px 0; }
+section + section { border-top: 1px solid var(--line); }
+h2 { font-size: clamp(24px, 4vw, 32px); line-height: 1.3; letter-spacing: -0.03em; margin: 0 0 12px; text-wrap: balance; }
+h3 { font-size: 18px; margin: 0 0 6px; letter-spacing: -0.02em; }
+.lead { color: var(--muted); margin: 0 0 32px; max-width: 680px; }
+
+/* 첫 화면 */
+.hero { background: var(--hero); color: #fff; position: relative; overflow: hidden; }
+.hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none; }
+.hero::before { width: 480px; height: 480px; background: #6d5bf5; opacity: .5; top: -240px; right: -120px; }
+.hero::after { width: 380px; height: 380px; background: #06b6d4; opacity: .3; bottom: -260px; left: 5%; }
+.hero .wrap { position: relative; z-index: 1; padding-top: 28px; padding-bottom: 72px; }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 56px; }
+.brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 700; }
+.logo { width: 36px; height: 36px; border-radius: 10px; background: var(--grad); display: grid; place-items: center; font-weight: 800; font-size: 18px; }
+.nav a.small { color: rgba(226, 232, 255, .8); font-size: 14px; text-decoration: none; }
+.nav a.small:hover { color: #fff; }
+.eyebrow { display: inline-block; font-size: 13px; font-weight: 600; color: #c7d2fe; background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .14); padding: 4px 12px; border-radius: 999px; margin: 0 0 18px; }
+.hero h1 { font-size: clamp(30px, 6vw, 52px); line-height: 1.22; letter-spacing: -0.04em; margin: 0 0 18px; max-width: 820px; text-wrap: balance; }
+.hero .sub { font-size: clamp(16px, 2.2vw, 19px); color: rgba(226, 232, 255, .82); max-width: 700px; margin: 0 0 32px; }
+.cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; text-decoration: none; color: #fff;
+  background: var(--grad); padding: 15px 26px; border-radius: 12px; box-shadow: 0 10px 28px -10px rgba(99, 102, 241, .9); }
+.btn:hover { filter: brightness(1.08); }
+.btn:focus-visible, a:focus-visible { outline: 3px solid #a5b4fc; outline-offset: 3px; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.cta .links { display: flex; gap: 16px; font-size: 15px; }
+.cta .links a { color: rgba(226, 232, 255, .85); }
+.note { margin: 14px 0 0; font-size: 14px; color: rgba(226, 232, 255, .72); }
+.note strong { color: #fff; font-weight: 600; }
+
+/* 사용 3단계 */
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: s; padding: 0; margin: 0 0 28px; list-style: none; }
+.steps li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.steps li::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px;
+  background: var(--accent-soft); color: var(--accent); font-weight: 800; margin-bottom: 12px; }
+.steps p { margin: 0; color: var(--muted); font-size: 15px; }
+.callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 16px 20px; margin: 0 0 36px; }
+.callout p { margin: 0; }
+table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { background: var(--surface-2); font-size: 14px; color: var(--muted); font-weight: 600; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.more { color: var(--muted); margin: 16px 0 0; font-size: 15px; }
+
+/* 화면 */
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 0 0 40px; }
+figure { margin: 0; }
+.shot { display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--surface); cursor: zoom-in; }
+.shot:hover { border-color: var(--accent-line); }
+.shots-note { margin: -24px 0 32px; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; }
+figcaption b { color: var(--ink); }
+.example { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 4fr); gap: 28px; align-items: start; }
+.post { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow); white-space: pre-line; font-size: 15.5px; }
+.post .tbd { background: var(--warn-soft); color: var(--warn); font-weight: 600; padding: 1px 4px; border-radius: 4px; }
+.meta { font-size: 14px; color: var(--muted); margin: 0 0 10px; }
+.example aside p { margin: 0 0 12px; }
+
+/* 비용 */
+.price { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0 0 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+.card .label { font-size: 14px; color: var(--muted); margin: 0 0 4px; }
+.card .big { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px; }
+.card p { margin: 0; }
+
+/* 설치 */
+.install { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.install ol { margin: 10px 0 0; padding-left: 22px; }
+.install li { margin-bottom: 8px; }
+.install .hint { display: block; font-size: 14px; color: var(--muted); }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; color: var(--warn); background: var(--warn-soft); padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+
+/* 알아 두실 것 */
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; padding: 0; margin: 0; list-style: none; }
+.facts li { padding-left: 18px; position: relative; }
+.facts li::before { content: ""; position: absolute; left: 0; top: .7em; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.facts b { display: block; }
+.facts span { color: var(--muted); font-size: 15px; }
+
+/* 질문 */
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 0 20px; margin-bottom: 10px; }
+summary { cursor: pointer; font-weight: 600; padding: 16px 0; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--accent); font-weight: 700; font-size: 20px; line-height: 1; }
+details[open] summary::after { content: "−"; }
+details p { margin: 0 0 18px; color: var(--muted); }
+
+/* 마지막 */
+.final { background: var(--hero); color: #fff; border-radius: 20px; padding: 44px 36px; text-align: center; }
+.final h2 { color: #fff; }
+.final p { color: rgba(226, 232, 255, .82); max-width: 600px; margin: 0 auto 26px; }
+.final .cta { justify-content: center; }
+.btn.ghost { background: transparent; border: 1px solid rgba(255, 255, 255, .35); box-shadow: none; }
+footer { padding: 32px 0 48px; font-size: 14px; color: var(--muted); }
+footer p { margin: 0 0 6px; }
+footer a { color: inherit; }
+
+@media (max-width: 820px) {
+  .steps, .shots, .price, .install, .facts, .example { grid-template-columns: minmax(0, 1fr); }
+  section { padding: 48px 0; }
+  .nav { margin-bottom: 36px; }
+  .hero .wrap { padding-bottom: 56px; }
+  .final { padding: 36px 20px; }
+}
+@media (max-width: 480px) {
+  .wrap { padding: 0 16px; }
+  .btn { width: 100%; justify-content: center; }
+  .cta .links { width: 100%; justify-content: center; }
+  th, td { padding: 12px 14px; }
+  td:first-child { white-space: normal; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <nav class="nav" aria-label="사이트">
+      <a class="brand" href="https://eflipsolution.xyz"><span class="logo" aria-hidden="true">e</span>이플립 솔루션</a>
+      <a class="small" href="https://eflipsolution.xyz/contact">강의·제작 문의</a>
+    </nav>
+    <p class="eyebrow">무료 · Windows용 (Mac은 시험 중)</p>
+    <h1>칸을 채우고 [실행]을 누르면, 내 가게 마케팅 글이 나옵니다</h1>
+    <p class="sub">인스타그램 글, 광고 문구, 네이버 블로그 점검, 한 달 마케팅 계획까지 52가지 일을 Claude가 내 사업 정보에 맞춰 써 줍니다. 결과는 내 PC 폴더에 파일로 저장됩니다.</p>
+    <div class="cta">
+      <a class="btn" href="https://github.com/hong-sun-cheol/marketing-skills-launcher/releases/latest/download/marketing-skills-launcher.zip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+        무료로 내려받기 (Windows)
+      </a>
+      <span class="links"><a href="#install">설치 방법 보기</a><a href="#mac">Mac에서 설치하기</a></span>
+    </div>
+    <p class="note">프로그램은 무료입니다. <strong>실행하려면 Claude 유료 구독(Pro 이상)이 필요합니다.</strong></p>
+  </div>
+</header>
+
+<main>
+  <section id="what">
+    <div class="wrap">
+      <h2>무엇을 하는 프로그램인가요</h2>
+      <p class="lead">마케팅 글을 쓸 때마다 무엇을 어떻게 물어봐야 할지 고민하셨다면, 그 질문을 미리 만들어 둔 화면입니다.</p>
+      <ol class="steps">
+        <li><h3>하고 싶은 일을 고릅니다</h3><p>예: "인스타그램 글 쓰기"</p></li>
+        <li><h3>칸 몇 개를 채웁니다</h3><p>예: "이번 주 신메뉴, 밤 스콘"</p></li>
+        <li><h3>[실행]을 누릅니다</h3><p>결과 파일이 <code>문서/마케팅작업실</code> 폴더에 생깁니다. 시험에서 인스타그램 글 한 편은 약 1분. 계획·점검처럼 긴 작업은 더 걸립니다.</p></li>
+      </ol>
+      <div class="callout"><p>처음 한 번 내 사업 정보(업종, 지역, 손님, 말투 등)를 적어 두면, 모든 작업이 그 내용을 기준으로 씁니다. 매번 우리 가게 설명을 다시 할 필요가 없습니다.</p></div>
+      <h3>처음이라면 이 네 가지부터</h3>
+      <table>
+        <thead><tr><th scope="col">작업</th><th scope="col">이럴 때</th></tr></thead>
+        <tbody>
+          <tr><td>SNS 글</td><td>인스타그램·블로그에 올릴 글이 필요할 때</td></tr>
+          <tr><td>카피 쓰기</td><td>전단지·홈페이지·상세페이지 문구가 필요할 때</td></tr>
+          <tr><td>마케팅 아이디어</td><td>무엇부터 해야 할지 모를 때</td></tr>
+          <tr><td>마케팅 계획</td><td>한 달·한 분기 홍보 순서를 정하고 싶을 때</td></tr>
+        </tbody>
+      </table>
+      <p class="more">그 밖에 광고 문구, 이메일, 네이버 블로그 검색 점검, 가격 정하기, 경쟁 가게 정리 등 모두 52가지가 들어 있습니다.</p>
+    </div>
+  </section>
+
+  <section id="screens">
+    <div class="wrap">
+      <h2>실제 화면과 결과물</h2>
+      <p class="lead">아래는 시험용 가상 카페 "달빛오븐"으로 실제로 실행한 모습입니다. 실제 가게가 아닙니다.</p>
+      <div class="shots">
+        <figure><a class="shot" href="img/01-setup.jpg" title="크게 보기"><img src="img/01-setup.jpg" width="958" height="854" alt="시작 준비 화면. Claude Code 설치, Claude 로그인, 마케팅 스킬 52개, 내 사업 정보 네 가지가 모두 확인 표시로 되어 있다" loading="lazy"></a>
+          <figcaption><b>1. 시작 준비.</b> 설치·로그인·사업 정보가 됐는지 확인하고, 안 된 것은 방법을 알려 줍니다.</figcaption></figure>
+        <figure><a class="shot" href="img/02-skill.jpg" title="크게 보기"><img src="img/02-skill.jpg" width="958" height="854" alt="작업 고르기 화면. 처음이라면 탭에서 SNS 글을 고르고 주제 칸에 밤 스콘 출시 소식을 적었다" loading="lazy"></a>
+          <figcaption><b>2. 작업 고르기.</b> 이럴 때 쓰는지, 무엇을 받게 되는지 먼저 보여 줍니다.</figcaption></figure>
+        <figure><a class="shot" href="img/03-result.jpg" title="크게 보기"><img src="img/03-result.jpg" width="958" height="854" alt="결과 화면. 완료, 54초 걸림 표시와 함께 만들어진 인스타그램 게시물 설명이 나온다" loading="lazy"></a>
+          <figcaption><b>3. 결과.</b> 이 예시는 54초 걸렸습니다. 결과는 파일로도 저장됩니다.</figcaption></figure>
+      </div>
+      <p class="more shots-note">사진을 누르면 크게 볼 수 있습니다.</p>
+      <div class="example">
+        <div>
+          <p class="meta">입력한 것: 주제 "이번 주 새로 나온 밤 스콘 출시 소식" · 채널 인스타그램</p>
+          <div class="post">이번 주부터 달빛오븐 진열대에 밤 스콘이 올라갑니다.
+
+날이 쌀쌀해지면서 가을 메뉴를 하나 꼭 내고 싶었어요. 플레인 스콘 반죽에 밤을 넣어 구웠고, 다른 스콘처럼 버터를 넉넉히 쓰고 매일 아침 그날 팔 만큼 굽습니다. 반으로 갈라 보시면 밤이 보여요.
+
+가격: <span class="tbd">[확인 필요]</span>
+판매 시작: <span class="tbd">[이번 주 O요일, 확인 필요]</span>
+수량: <span class="tbd">[하루 O개 한정 여부, 확인 필요]</span></div>
+        </div>
+        <aside>
+          <h3>모르는 건 비워 둡니다</h3>
+          <p>가격·주소·날짜처럼 프로그램이 모르는 내용은 지어내지 않고 <code>[확인 필요]</code>로 남깁니다. 그 칸만 채워서 쓰시면 됩니다.</p>
+          <p>사업 정보에 적어 둔 강점("당일 아침에 굽는다", "버터를 아끼지 않는다")은 글에 반영되고, 피하고 싶다고 적은 과장 표현은 쓰지 않습니다.</p>
+          <p>결과 파일에는 캡션 말고도 사진 3장 구성, 해시태그, 올리기 전 체크리스트가 함께 들어 있습니다.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="cost">
+    <div class="wrap">
+      <h2>비용</h2>
+      <p class="lead">이플립은 사용료를 따로 받지 않습니다. 작업을 실행할 때마다 내 Claude 구독의 사용량이 조금씩 줄어드는 구조입니다.</p>
+      <div class="price">
+        <div class="card"><p class="label">명령판 프로그램</p><p class="big">무료</p><p>설치·업데이트 모두 무료입니다.</p></div>
+        <div class="card"><p class="label">Claude 사용료</p><p class="big">내 Claude 계정</p><p>Pro 이상 유료 구독 또는 API 키가 필요합니다. 무료 플랜으로는 실행되지 않습니다.</p></div>
+      </div>
+      <p>Claude 요금제는 <a href="https://claude.com/pricing" rel="noopener">Anthropic 공식 요금 페이지</a>에서 확인하세요.</p>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>설치는 세 단계</h2>
+      <p class="lead">관리자 권한 없이 설치됩니다. 처음 켜면 "시작 준비" 화면이 Claude Code 설치와 로그인이 됐는지 확인하고, 안 된 것이 있으면 무엇을 하면 되는지 알려 줍니다.</p>
+      <div class="install">
+        <div class="card">
+          <h3>Windows</h3>
+          <ol>
+            <li>내려받은 zip 파일을 오른쪽 클릭해 <b>압축 풀기</b></li>
+            <li>풀린 폴더에서 <code>install-windows.cmd</code> 더블클릭<span class="hint">"Windows의 PC 보호" 창이 뜨면 <b>추가 정보 → 실행</b></span></li>
+            <li>브라우저에 명령판이 열립니다. 다음부터는 바탕화면 아이콘을 누르세요</li>
+          </ol>
+        </div>
+        <div class="card" id="mac">
+          <h3>Mac <span class="tag">아직 시험 중</span></h3>
+          <ol>
+            <li>같은 zip 파일을 더블클릭해 압축을 풉니다</li>
+            <li><code>install-mac.command</code>를 <b>오른쪽 클릭 → 열기</b><span class="hint">"열 수 없음" 창만 뜨면 시스템 설정 → 개인정보 보호 및 보안 맨 아래 <b>"그래도 열기"</b></span></li>
+            <li>브라우저에 명령판이 열립니다</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="notes">
+    <div class="wrap">
+      <h2>알아 두실 것</h2>
+      <ul class="facts">
+        <li><b>관리자 권한이 필요 없습니다.</b><span>PC 설정을 바꾸지 않고, 원래 쓰던 Claude 설정도 건드리지 않습니다.</span></li>
+        <li><b>결과물과 사업 정보는 내 PC에 파일로 남습니다.</b><span><code>문서/마케팅작업실</code> 폴더에 저장됩니다. 글을 만드는 동안 입력한 내용은 Claude(Anthropic)로 보내져 처리됩니다.</span></li>
+        <li><b>새 버전은 화면 위쪽 알림으로 알려 드립니다.</b><span>[지금 업데이트]를 누르면 1~3분 뒤 새 버전으로 다시 열리고, 사업 정보와 결과물은 그대로입니다.</span></li>
+        <li><b>휴대폰에서도 쓸 수 있습니다 (선택).</b><span>PC가 켜져 있으면 Tailscale 앱으로 내 휴대폰에서 열 수 있습니다. 방법은 프로그램 안 "시작 준비" 화면에 있습니다.</span></li>
+        <li><b>지워도 결과물은 남습니다.</b><span>프로그램 폴더의 <code>uninstall.cmd</code>로 지우면 프로그램만 사라집니다.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2>자주 묻는 질문</h2>
+      <details><summary>정말 무료인가요?</summary><p>명령판은 무료입니다. 글을 만드는 Claude는 본인 계정의 유료 구독(Pro 이상)이나 API 키로 돌아갑니다.</p></details>
+      <details><summary>코딩을 전혀 몰라도 되나요?</summary><p>설치는 파일 더블클릭으로 끝나고, 쓰는 동안에는 칸을 채우고 버튼을 누릅니다. 단, Claude Code를 처음 설치할 때 명령 한 줄을 붙여 넣는 단계가 한 번 있습니다. 시작 준비 화면이 그 한 줄을 그대로 보여 줍니다.</p></details>
+      <details><summary>만들어진 글을 그대로 올려도 되나요?</summary><p>꼭 읽어 보고 고쳐서 쓰세요. 숫자·후기처럼 근거가 없는 내용은 [확인 필요]로 표시되지만, 최종 확인은 쓰는 분의 몫입니다.</p></details>
+      <details><summary>Mac에서도 되나요?</summary><p>설치 파일은 들어 있지만 아직 실제 Mac에서 시험을 마치지 못했습니다. 써 보시고 막히는 곳을 알려 주시면 고치겠습니다.</p></details>
+      <details><summary>가게가 두 개면요?</summary><p>사업 정보를 브랜드별로 따로 저장하고, 실행할 때 골라 쓸 수 있습니다.</p></details>
+      <details><summary>막히면 어디에 물어보나요?</summary><p><a href="https://eflipsolution.xyz/contact">이플립 솔루션 문의 페이지</a>로 연락 주세요. 업데이트가 안 될 때는 프로그램 폴더의 <code>app/logs/update.log</code> 파일을 함께 보내 주시면 빨리 찾을 수 있습니다.</p></details>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <div class="final">
+        <h2>우리 가게에 맞게 쓰는 법이 궁금하다면</h2>
+        <p>이플립은 이 명령판으로 소상공인·강사·기관 대상 생성형 AI 마케팅 강의를 하고, 업무에 맞춘 도구도 만들어 드립니다.</p>
+        <div class="cta">
+          <a class="btn" href="https://github.com/hong-sun-cheol/marketing-skills-launcher/releases/latest/download/marketing-skills-launcher.zip">무료로 내려받기 (Windows)</a>
+          <a class="btn ghost" href="https://eflipsolution.xyz/contact">설치·활용 강의 · 맞춤 제작 문의</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>만든 곳: 주식회사 이플립 · <a href="https://eflipsolution.xyz">eflipsolution.xyz</a></p>
+    <p>마케팅 스킬 52개 출처: Corey Haines의 <a href="https://github.com/coreyhaines31/marketingskills" rel="noopener">marketingskills</a> (MIT License). 내용을 고치지 않고 담았습니다.</p>
+    <p>명령판 코드: MIT License, <a href="https://github.com/hong-sun-cheol/marketing-skills-launcher" rel="noopener">GitHub에 공개</a></p>
+    <p>결과물은 사용자가 검토한 뒤 사용해 주세요.</p>
+  </div>
+</footer>
+
+</body>
+</html>
