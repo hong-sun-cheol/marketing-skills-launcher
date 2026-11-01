@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>마케팅 스킬 명령판</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f46e5'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='700' font-size='34' text-anchor='middle' fill='white'%3Ee%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script src="/skills.js"></script>
+<script src="/skill-guide.js"></script>
+<script src="/brands.js"></script>
+<style>
+/* 레이아웃: 맨 위 브랜드 머리띠(제목·화면 전환·기준 브랜드·내 사이트) / 영역 탭·검색 / 왼쪽 스킬 목록, 오른쪽 입력칸·실행 결과.
+   기록 화면은 작업 목록과 결과 파일. 색·글꼴은 아래 :root 변수만 바꾸면 전체가 따라 바뀐다. */
+:root {
+  --bg: #f4f6fb; --surface: #ffffff; --surface-2: #f8f9fd; --ink: #111827; --muted: #64708a; --line: #e3e7f0; --line-strong: #cfd6e4;
+  --accent: #4f46e5; --accent-2: #06b6d4; --accent-ink: #ffffff; --accent-soft: #eef0ff; --accent-line: #c7cbff;
+  --grad: linear-gradient(135deg, #4f46e5 0%, #6d5bf5 45%, #06b6d4 100%);
+  --hero: linear-gradient(135deg, #0f1235 0%, #1e1b5e 55%, #133a5c 100%);
+  --term-bg: #0d1022; --term-fg: #dfe4ff; --term-dim: #8a93c0;
+  --ok: #059669; --ok-soft: #e7f8f1; --warn: #c2410c; --warn-soft: #fff3ea; --bad: #dc2626; --bad-soft: #fdeeee;
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, .05);
+  --shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 8px 24px -12px rgba(30, 27, 94, .18);
+  --radius: 14px;
+  --sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0d1a; --surface: #141729; --surface-2: #181c31; --ink: #e8eaf6; --muted: #9aa2c2; --line: #252a45; --line-strong: #323858;
+    --accent: #8b85ff; --accent-2: #22d3ee; --accent-ink: #0b0d1a; --accent-soft: #1f2148; --accent-line: #3b3d7a;
+    --grad: linear-gradient(135deg, #6d63ff 0%, #8b7bff 45%, #22c5e0 100%);
+    --hero: linear-gradient(135deg, #0a0c26 0%, #19164d 55%, #0e2c47 100%);
+    --term-bg: #070816; --term-fg: #dfe4ff; --term-dim: #7c85b3;
+    --ok: #34d399; --ok-soft: #0f2a22; --warn: #fb923c; --warn-soft: #2d1c10; --bad: #f87171; --bad-soft: #2e1515;
+    --shadow-sm: none; --shadow: 0 10px 30px -16px rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6;
+  letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; padding-bottom: 56px;
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 18px; }
+.stack { width: 100%; display: flex; flex-direction: column; gap: 18px; }
+
+/* ── 머리띠 ── */
+.hero { background: var(--hero); color: #fff; position: relative; overflow: hidden; margin-bottom: 22px; }
+.hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; pointer-events: none; }
+.hero::before { width: 420px; height: 420px; background: #6d5bf5; top: -220px; right: -80px; }
+.hero::after { width: 360px; height: 360px; background: #06b6d4; bottom: -260px; left: 10%; opacity: .35; }
+.hero .wrap { position: relative; z-index: 1; padding-top: 26px; padding-bottom: 24px; gap: 22px; }
+header.top { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; }
+.brandmark { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.logo { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; background: var(--grad); display: grid; place-items: center;
+  font-weight: 800; font-size: 22px; color: #fff; box-shadow: 0 6px 20px -6px rgba(99, 102, 241, .8), inset 0 1px 0 rgba(255, 255, 255, .3); }
+.eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #a5b4fc; }
+h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.03em; text-wrap: balance; line-height: 1.3; }
+.sub { margin: 4px 0 0; color: rgba(226, 232, 255, .72); font-size: 13.5px; }
+.views { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .12); backdrop-filter: blur(8px); }
+.vbtn { font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border: 0; background: transparent; color: rgba(255, 255, 255, .75);
+  border-radius: 9px; padding: 7px 18px; transition: background .15s, color .15s; }
+.vbtn:hover { color: #fff; background: rgba(255, 255, 255, .08); }
+.vbtn[aria-pressed="true"] { background: #fff; color: #1e1b5e; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+.topfields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; padding: 14px 16px; border-radius: var(--radius);
+  background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .12); backdrop-filter: blur(8px); }
+.mysite { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.hero label { color: rgba(226, 232, 255, .8); }
+.hero select, .hero input { background-color: rgba(255, 255, 255, .95); border-color: transparent; color: #111827; }
+
+/* ── 입력 요소 ── */
+.foot { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: space-between; padding: 8px 2px 28px; font-size: 12.5px; color: var(--muted); }
+.foot a { color: inherit; }
+.foot > a { font-weight: 600; color: var(--ink); }
+label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+input[type=text], input[type=url], input[type=password], textarea, select {
+  width: 100%; font: inherit; font-size: 14.5px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 12px; transition: border-color .15s, box-shadow .15s;
+}
+select { appearance: none; padding-right: 36px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%2364708a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; }
+input::placeholder, textarea::placeholder { color: #a0a8bd; }
+input:hover, textarea:hover, select:hover { border-color: var(--accent-line); }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+textarea { min-height: 96px; resize: vertical; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── 영역 탭 + 검색 ── */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-sm); max-width: 100%; scrollbar-width: none; }
+.tab { flex: 0 0 auto; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border: 0; background: transparent; color: var(--muted);
+  border-radius: 9px; padding: 7px 14px; display: flex; gap: 7px; align-items: center; transition: background .15s, color .15s; }
+.tab:hover { color: var(--ink); background: var(--surface-2); }
+.tab small { font-size: 11.5px; font-weight: 700; min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--surface-2); color: var(--muted); text-align: center; line-height: 18px; }
+.tab[aria-selected="true"] { background: var(--grad); color: #fff; box-shadow: 0 4px 14px -6px rgba(79, 70, 229, .7); }
+.tab[aria-selected="true"] small { background: rgba(255, 255, 255, .22); color: #fff; }
+.searchrow { position: relative; flex: 1 1 260px; max-width: 360px; }
+.searchrow::before { content: ""; position: absolute; left: 13px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); opacity: .55;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364708a' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat center / contain; }
+.searchrow input { padding-left: 38px; border-radius: 12px; border-color: var(--line); box-shadow: var(--shadow-sm); }
+
+/* ── 본문 2단 ── */
+.main { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.list { display: flex; flex-direction: column; overflow: hidden; }
+.main .list { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
+.listhead { position: sticky; top: 0; z-index: 1; padding: 12px 16px; font-size: 12.5px; font-weight: 600; color: var(--muted); background: var(--surface-2);
+  border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; }
+.listhead span:last-child { color: var(--accent); }
+.row {
+  text-align: left; font: inherit; background: none; border: 0; border-bottom: 1px solid var(--line); position: relative;
+  padding: 13px 16px 13px 18px; cursor: pointer; color: var(--ink); display: flex; flex-direction: column; gap: 3px; width: 100%; transition: background .12s;
+}
+.row:last-child { border-bottom: 0; }
+.row:hover { background: var(--surface-2); }
+.row[aria-current="true"] { background: var(--accent-soft); }
+.row[aria-current="true"]::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--grad); }
+.nm { font-weight: 700; font-size: 14.5px; letter-spacing: -0.02em; }
+.row[aria-current="true"] .nm { color: var(--accent); }
+.mono { font-family: var(--mono); font-size: 11.5px; color: var(--accent); }
+.row .mono, .phead .mono { align-self: flex-start; background: var(--accent-soft); border-radius: 6px; padding: 1px 7px; }
+.row[aria-current="true"] .mono { background: var(--surface); }
+.ds { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.empty { padding: 22px 16px; color: var(--muted); font-size: 14px; margin: 0; text-align: center; }
+
+/* ── 실행 패널 ── */
+.panel { padding: 26px 28px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.phead { display: flex; flex-direction: column; gap: 6px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.phead h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+.phead p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.guide { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.guide div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.guide b { display: block; font-size: 12.5px; color: var(--accent); margin-bottom: 2px; }
+.guide p { margin: 0; font-size: 13.5px; line-height: 1.55; }
+.tab.start:not([aria-selected="true"]) { color: var(--accent); }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.req { color: var(--warn); font-weight: 700; margin-left: 3px; }
+.field.missing input, .field.missing textarea { border-color: var(--warn); background: var(--warn-soft); }
+details { border: 1px dashed var(--line-strong); border-radius: 10px; padding: 10px 14px; background: var(--surface-2); }
+details summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--muted); }
+details[open] summary { margin-bottom: 4px; }
+.term { background: var(--term-bg); color: var(--term-fg); border-radius: 10px; padding: 14px 16px; margin-top: 8px; overflow-x: auto; }
+.term pre { margin: 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; border-radius: 10px; padding: 10px 18px; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink); transition: transform .12s, box-shadow .15s, background .15s, border-color .15s; }
+.btn:hover { border-color: var(--accent-line); background: var(--surface-2); }
+.btn.primary { background: var(--grad); color: #fff; border: 0; padding: 11px 30px; font-weight: 700; box-shadow: 0 8px 20px -8px rgba(79, 70, 229, .75); }
+.btn.primary:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -10px rgba(79, 70, 229, .85); }
+.btn.primary:active { transform: translateY(0); }
+.btn.small { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+/* 새 버전 알림 띠 */
+.updatebar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 16px 0 0; padding: 12px 16px; border-radius: var(--radius);
+  background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--ink); font-size: 14.5px; }
+.updatebar .msg { flex: 1 1 260px; }
+.updatebar .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.updatebar .notes { flex-basis: 100%; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line);
+  font-size: 13.5px; line-height: 1.6; max-height: 240px; overflow: auto; }
+.updatebar.err { background: var(--warn-soft); border-color: var(--warn); }
+.status { font-size: 13.5px; color: var(--muted); }
+.status.warn { color: var(--warn); }
+
+/* ── 시작 준비 ── */
+.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.check { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 4px 12px; align-items: start; }
+.check .mark { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 14px;
+  background: var(--warn-soft); color: var(--warn); }
+.check.ok .mark { background: var(--accent-soft); color: var(--accent); }
+.check code { overflow-wrap: anywhere; } /* 긴 폴더 경로가 휴대폰 화면 밖으로 나가지 않게 */
+.check > div { grid-column: 2; } /* 단계 안의 버튼 줄은 설명 글과 같은 칸에 */
+.check.info .mark { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+/* 휴대폰에서 쓰기 */
+.rstate { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); font-size: 14.5px; }
+.rstate.on { background: var(--ok-soft); border-color: var(--ok); }
+.rstate code { font-family: var(--mono); font-size: 13px; word-break: break-all; }
+.rtabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.rtabs .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.check b { font-size: 15px; }
+.check p { grid-column: 2; margin: 0; font-size: 13.5px; color: var(--muted); }
+.check code { font-family: var(--mono); font-size: 12.5px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+
+/* ── 작업 진행·결과 ── */
+.job { border-top: 1px solid var(--line); padding-top: 20px; display: flex; flex-direction: column; gap: 14px; }
+.jobhead { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.jobhead h3 { margin: 0; font-size: 16.5px; font-weight: 700; }
+.pill { font-size: 12px; font-weight: 700; padding: 3px 11px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.queued, .pill.running { color: var(--accent); background: var(--accent-soft); }
+.pill.running::before { animation: pulse 1.2s ease-in-out infinite; }
+.pill.done { color: var(--ok); background: var(--ok-soft); }
+.pill.error, .pill.canceled { color: var(--bad); background: var(--bad-soft); }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .pill.running::before { animation: none; } * { transition: none !important; } }
+.elapsed { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.log { background: var(--term-bg); color: var(--term-fg); border-radius: 12px; padding: 12px 16px; max-height: 280px; overflow-y: auto;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.65; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04); }
+.log:empty { display: none; }
+.log div { white-space: pre-wrap; word-break: break-word; }
+.log .tool::before { content: "▸ "; color: var(--accent-2); }
+.log .text { color: var(--term-dim); }
+.log .warn { color: #fcd34d; }
+.log .error { color: #fca5a5; }
+.files { display: flex; flex-wrap: wrap; gap: 8px; }
+.files:empty { display: none; }
+.md { overflow-wrap: anywhere; line-height: 1.75; }
+.md > :first-child { margin-top: 0; }
+.md h1 { font-size: 21px; letter-spacing: -0.03em; } .md h2 { font-size: 18px; letter-spacing: -0.02em; } .md h3 { font-size: 15.5px; }
+.md h1, .md h2 { padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.md table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; font-size: 14px; }
+.md th, .md td { border: 1px solid var(--line); padding: 7px 11px; text-align: left; vertical-align: top; }
+.md th { background: var(--surface-2); }
+.md blockquote { margin: 0; padding: 4px 14px; border-left: 3px solid var(--accent-line); color: var(--muted); background: var(--surface-2); border-radius: 0 8px 8px 0; }
+.md code { font-family: var(--mono); font-size: 12.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 5px; }
+.md pre { background: var(--term-bg); color: var(--term-fg); padding: 14px; border-radius: 10px; overflow-x: auto; }
+.md pre code { background: none; padding: 0; color: inherit; }
+.md a { color: var(--accent); }
+
+/* ── 기록 화면 ── */
+.hist { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.meta { font-size: 12.5px; color: var(--muted); }
+.viewer { padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.viewer header { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.viewer h2 { margin: 0; font-size: 15px; font-family: var(--mono); word-break: break-all; color: var(--accent); }
+.viewer .job { border-top: 0; padding-top: 0; }
+
+@media (max-width: 860px) {
+  .main, .hist { grid-template-columns: minmax(0, 1fr); }
+  .main .list { position: static; max-height: 420px; }
+  .searchrow { max-width: none; }
+}
+@media (max-width: 640px) {
+  .wrap { padding-left: 16px; padding-right: 16px; }
+  .topfields, .fields { grid-template-columns: minmax(0, 1fr); }
+  .panel, .viewer { padding: 18px; }
+  h1 { font-size: 20px; }
+  .hero .wrap { padding-top: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="wrap">
+    <header class="top">
+      <div class="brandmark">
+        <div class="logo" aria-hidden="true">e</div>
+        <div>
+          <p class="eyebrow">by eflip</p>
+          <h1>마케팅 스킬 명령판</h1>
+          <p class="sub">스킬을 고르고 칸을 채워 실행하면, 이 컴퓨터의 Claude Code가 작업하고 결과를 여기에 보여줍니다. 비용은 내 Claude 계정에서 나갑니다.</p>
+        </div>
+      </div>
+      <div class="views">
+        <button class="vbtn" id="vRun" type="button" aria-pressed="true">실행</button>
+        <button class="vbtn" id="vHist" type="button" aria-pressed="false">기록</button>
+        <button class="vbtn" id="vSetup" type="button" aria-pressed="false">시작 준비</button>
+      </div>
+    </header>
+    <div class="topfields" id="topFields">
+      <div class="mysite">
+        <label for="brand">기준 브랜드 (스킬이 읽을 제품 문서)</label>
+        <select id="brand"></select>
+      </div>
+      <div class="mysite">
+        <label for="mySite">내 사이트 주소 (주소가 필요한 칸에 자동으로 들어갑니다)</label>
+        <input id="mySite" type="url" inputmode="url" placeholder="https://" autocomplete="url">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="updatebar" id="updateBar" role="status" hidden></div>
+  <section id="viewRun" class="stack">
+    <div class="toolbar">
+      <nav class="tabs" id="tabs" role="tablist" aria-label="영역"></nav>
+      <div class="searchrow"><input id="q" type="text" placeholder="스킬 찾기 (예: 카드뉴스, seo, 이메일)" aria-label="스킬 찾기"></div>
+    </div>
+    <div class="main">
+      <section class="box list" id="list" aria-label="스킬 목록"></section>
+      <section class="box panel" id="panel"></section>
+    </div>
+  </section>
+
+  <section id="viewSetup" class="stack" hidden>
+    <section class="box panel" id="setupChecks" aria-label="실행 준비 확인"></section>
+    <section class="box panel" id="setupForm" aria-label="내 사업 정보"></section>
+    <section class="box panel" id="setupRemote" aria-label="휴대폰에서 쓰기"></section>
+  </section>
+
+  <section id="viewHist" class="stack" hidden>
+    <section class="box viewer" id="viewer" hidden></section>
+    <div class="hist">
+      <section class="box list" id="jobList" aria-label="실행 기록"></section>
+      <section class="box list" id="fileList" aria-label="결과 파일"></section>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <a href="https://eflipsolution.xyz/contact" target="_blank" rel="noopener">설치·활용 강의 · 맞춤 제작 문의</a>
+    <span>마케팅 스킬 원작: <a href="https://github.com/coreyhaines31/marketingskills" target="_blank" rel="noopener">marketingskills</a> (MIT) · 결과물은 검토 후 사용하세요</span>
+  </footer>
+</div>
+
+<script>
+// 화면 밖에서 Claude Code에 함께 전할 지시. 공통 지시(COMMON_RULES)는 skills.js에 있다.
+const RUN_RULES = [
+  "이 작업은 화면에서 자동 실행된다. 중간에 질문하지 말고, 정보가 부족하면 합리적으로 가정한 뒤 가정한 내용을 결과 맨 위에 적어 줘.",
+  "마지막 답변에는 핵심 결과 요약과 저장한 파일 경로를 적어 줘.",
+];
+
+// 기준 브랜드(BRANDS)는 서버가 /brands.js로 내려준다. 작업 폴더의 .agents/brands.json에서 읽는다.
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+};
+const byId = Object.fromEntries(SKILLS.map(s => [s.id, s]));
+const values = {};
+let brand = BRANDS.find(b => b.key === store.get("brand")) || BRANDS[0];
+let mySite = store.get("mySite") ?? brand.site;
+// "start"는 처음 쓰는 분용 추천 탭. 추천 목록이 비어 있으면 기획 탭부터 보여준다.
+const starters = STARTER.filter(id => byId[id]);
+let area = starters.length ? "start" : "plan", current = null, query = "";
+let stream = null, tick = null;
+
+const $ = id => document.getElementById(id);
+function el(tag, props = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") n.className = v;
+    else if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => c != null && n.append(c));
+  return n;
+}
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { "content-type": "application/json", "x-runner": "1", ...(opts.headers || {}) } });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || `요청 실패 (${r.status})`);
+  return data;
+}
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const fmtTime = t => t ? new Date(t).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+const fmtDur = ms => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? `${s}초` : `${Math.floor(s / 60)}분 ${s % 60}초`; };
+const STATUS = { queued: "대기 중", running: "실행 중", done: "완료", error: "오류", canceled: "취소됨" };
+const renderMd = text => DOMPurify.sanitize(marked.parse(text || ""));
+
+function vals(s) {
+  if (!values[s.id]) {
+    values[s.id] = {};
+    s.f.forEach(f => { values[s.id][f.k] = f.site ? mySite : f.t === "sel" ? f.o[0] : ""; });
+  }
+  return values[s.id];
+}
+const missing = s => s.f.filter(f => f.r && !String(vals(s)[f.k] || "").trim());
+
+function buildPrompt(s) {
+  const v = vals(s);
+  const lines = [`/${s.id} ${s.ask}`];
+  s.f.forEach(f => {
+    const x = String(v[f.k] || "").trim();
+    if (x) lines.push(`- ${f.l}: ${f.t === "area" ? x.replace(/\n+/g, "\n  ") : x}`);
+  });
+  lines.push("", "[공통 지시]");
+  // 공통 지시의 첫 줄(제품 문서 읽기)은 고른 브랜드의 문서로 바꿔 넣는다
+  const brandRule = `${brand.doc}를 먼저 읽고 그 내용을 기준으로 해 줘. (기준 브랜드: ${brand.name})`;
+  [brandRule, ...COMMON_RULES.slice(1), ...RUN_RULES].forEach(r => lines.push(`- ${r}`));
+  if (!s.noSave) lines.push(`- 결과는 ${AREAS.find(a => a.key === s.a).folder}/${today()}_주제.md 로 저장해 줘. (주제는 내용에 맞게 짧게)`);
+  return lines.join("\n");
+}
+function titleOf(s) {
+  const v = vals(s);
+  const first = s.f.map(f => String(v[f.k] || "").trim()).find(x => x && !s.f.find(f => f.t === "sel" && v[f.k] === x));
+  return first ? `${s.n} · ${first.slice(0, 60)}` : s.n;
+}
+
+// ── 실행 화면 ───────────────────────────────────────────
+function renderTabs() {
+  const tabs = [...(starters.length ? [{ key: "start", name: "처음이라면", count: starters.length }] : []),
+    ...AREAS.map(a => ({ ...a, count: SKILLS.filter(s => s.a === a.key).length }))];
+  $("tabs").replaceChildren(...tabs.map(a => el("button", {
+    class: "tab" + (a.key === "start" ? " start" : ""), role: "tab", type: "button", "aria-selected": String(!query && a.key === area),
+    onclick: () => { area = a.key; query = ""; $("q").value = ""; renderTabs(); renderList(); },
+  }, a.name, el("small", { text: String(a.count) }))));
+}
+function renderList() {
+  const q = query.trim().toLowerCase();
+  const text = s => [s.id, s.n, s.d, GUIDE[s.id]?.w].join(" ").toLowerCase();
+  const items = q ? SKILLS.filter(s => text(s).includes(q))
+    : area === "start" ? starters.map(id => byId[id]) : SKILLS.filter(s => s.a === area);
+  const head = el("div", { class: "listhead" },
+    el("span", { text: q ? `"${query.trim()}" 찾은 결과` : area === "start" ? "처음 쓰는 분께 추천하는 스킬" : `저장 폴더: ${AREAS.find(a => a.key === area).folder}/` }),
+    el("span", { text: `${items.length}개` }));
+  const rows = items.map(s => el("button", { class: "row", type: "button", "aria-current": String(current === s.id), onclick: () => select(s.id, true) },
+    el("span", { class: "nm", text: s.n }), el("span", { class: "mono", text: "/" + s.id }), el("span", { class: "ds", text: s.d })));
+  $("list").replaceChildren(head, ...(rows.length ? rows : [el("p", { class: "empty", text: "맞는 스킬이 없습니다. 다른 말로 찾아보세요." })]));
+}
+// 예시 값으로 칸을 채운다. 내 사이트 주소 칸은 그대로 두고, 예시에 없는 칸은 비운다.
+function fillExample(s) {
+  const v = vals(s), ex = GUIDE[s.id].ex;
+  s.f.forEach(f => { if (!f.site) v[f.k] = ex[f.k] ?? (f.t === "sel" ? f.o[0] : ""); });
+  renderPanel();
+  $("status").textContent = "다른 업종의 예시입니다. 내 사업에 맞게 고친 뒤 실행하세요.";
+}
+function renderPanel() {
+  const s = byId[current], v = vals(s), g = GUIDE[s.id];
+  const fields = s.f.map(f => {
+    const id = `f-${s.id}-${f.k}`;
+    const input = f.t === "sel" ? el("select", { id }, f.o.map(o => el("option", { value: o, text: o })))
+      : f.t === "area" ? el("textarea", { id, placeholder: f.ph || "" })
+      : el("input", { id, type: f.t === "url" ? "url" : "text", placeholder: f.ph || "" });
+    input.value = v[f.k];
+    input.addEventListener("input", () => { v[f.k] = input.value; update(); });
+    return el("div", { class: "field" + (f.t === "area" || s.f.length === 1 ? " wide" : ""), "data-k": f.k },
+      el("label", { for: id }, f.l, f.r ? el("span", { class: "req", text: "*" }) : null), input);
+  });
+  $("panel").replaceChildren(
+    el("div", { class: "phead" }, el("h2", { text: s.n }), el("div", { class: "mono", text: "/" + s.id }), el("p", { text: s.d })),
+    g ? el("div", { class: "guide" },
+      el("div", {}, el("b", { text: "이럴 때 쓰세요" }), el("p", { text: g.w })),
+      el("div", {}, el("b", { text: "받게 될 결과물" }), el("p", { text: g.out }))) : null,
+    el("div", { class: "fields" }, fields),
+    el("details", {}, el("summary", { text: "Claude Code에 보낼 명령 보기" }), el("div", { class: "term" }, el("pre", { id: "out" }))),
+    el("div", { class: "actions" },
+      el("button", { class: "btn primary", type: "button", id: "runBtn", onclick: run, text: "실행" }),
+      g?.ex ? el("button", { class: "btn", type: "button", onclick: () => fillExample(s), text: "예시로 채우기" }) : null,
+      el("button", { class: "btn", type: "button", onclick: () => { delete values[s.id]; renderPanel(); }, text: "칸 비우기" }),
+      el("span", { class: "status", id: "status", role: "status" })),
+    el("section", { class: "job", id: "job", hidden: "" }),
+  );
+  update();
+  const last = store.get("job:" + s.id);
+  if (last) showJob(last, $("job"));
+}
+function update() {
+  const s = byId[current];
+  $("out").textContent = buildPrompt(s);
+  const miss = missing(s);
+  document.querySelectorAll(".field").forEach(n => n.classList.toggle("missing", miss.some(f => f.k === n.dataset.k)));
+  $("status").className = miss.length ? "status warn" : "status";
+  $("status").textContent = miss.length ? "* 표시 칸을 채워 주세요: " + miss.map(f => f.l).join(", ") : "";
+}
+async function run() {
+  const s = byId[current];
+  if (missing(s).length) return update();
+  $("runBtn").disabled = true;
+  try {
+    const job = await api("/api/run", { method: "POST", body: JSON.stringify({ skill: s.id, title: titleOf(s), prompt: buildPrompt(s) }) });
+    store.set("job:" + s.id, job.id);
+    showJob(job.id, $("job"));
+  } catch (e) {
+    $("status").className = "status warn";
+    $("status").textContent = e.message;
+  } finally {
+    $("runBtn").disabled = false;
+  }
+}
+function select(id, scroll) {
+  if (!byId[id]) return;
+  current = id;
+  // 추천 탭에서 고른 경우엔 추천 탭에 머문다
+  if (!query && !(area === "start" && starters.includes(id))) area = byId[id].a;
+  store.set("lastSkill", id);
+  if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+  renderTabs(); renderList(); renderPanel();
+  if (scroll && matchMedia("(max-width: 760px)").matches) $("panel").scrollIntoView({ block: "start" });
+}
+
+// ── 작업 보기 (진행 상황 + 결과) ─────────────────────────
+function showJob(id, box) {
+  if (stream) stream.close();
+  clearInterval(tick);
+  box.hidden = false;
+  const pill = el("span", { class: "pill" }), elapsed = el("span", { class: "elapsed" });
+  const cancel = el("button", { class: "btn small", type: "button", text: "취소", hidden: "" });
+  const title = el("h3");
+  const log = el("div", { class: "log", "aria-live": "polite" });
+  const files = el("div", { class: "files" });
+  const result = el("div", { class: "md" });
+  const cost = el("div", { class: "meta" });
+  box.replaceChildren(el("div", { class: "jobhead" }, title, pill, elapsed, cancel), log, files, result, cost);
+  let st = null;
+  const paint = () => {
+    if (!st) return;
+    title.textContent = st.title;
+    pill.className = "pill " + st.status;
+    pill.textContent = STATUS[st.status] || st.status;
+    const live = st.status === "running" || st.status === "queued";
+    cancel.hidden = !live;
+    const end = st.endedAt || Date.now();
+    elapsed.textContent = st.startedAt ? `${fmtDur(end - st.startedAt)} ${live ? "지남" : "걸림"}` : fmtTime(st.createdAt);
+  };
+  cancel.onclick = async () => { cancel.disabled = true; try { await api(`/api/jobs/${id}/cancel`, { method: "POST" }); } catch (e) {} };
+  tick = setInterval(paint, 1000);
+  stream = new EventSource(`/api/jobs/${id}/events`);
+  stream.addEventListener("state", e => { st = JSON.parse(e.data); paint(); });
+  stream.addEventListener("event", e => {
+    const ev = JSON.parse(e.data);
+    log.append(el("div", { class: ev.kind, text: ev.text }));
+    log.scrollTop = log.scrollHeight;
+  });
+  stream.addEventListener("result", e => {
+    const r = JSON.parse(e.data);
+    stream.close(); clearInterval(tick); paint();
+    files.replaceChildren(...(r.files || []).filter(f => f.endsWith(".md")).map(f =>
+      el("button", { class: "btn small", type: "button", text: "📄 " + f, onclick: () => openFile(f) })));
+    result.innerHTML = renderMd(r.result || "(Claude Code가 남긴 답이 없습니다. 위 진행 기록을 확인하세요.)");
+    cost.textContent = r.cost != null ? `참고: API 요금 환산 약 $${Number(r.cost).toFixed(2)} (구독 사용량에서 차감)` : "";
+  });
+  stream.onerror = () => { if (stream.readyState === EventSource.CLOSED) clearInterval(tick); };
+}
+
+// ── 기록 화면 ───────────────────────────────────────────
+async function renderHistory() {
+  try {
+    const [jobs, files] = await Promise.all([api("/api/jobs"), api("/api/files")]);
+    $("jobList").replaceChildren(el("div", { class: "listhead" }, el("span", { text: "실행 기록" }), el("span", { text: `${jobs.length}개` })),
+      ...(jobs.length ? jobs.map(j => el("button", { class: "row", type: "button", onclick: () => openJob(j.id) },
+        el("span", { class: "nm", text: j.title }),
+        el("span", { class: "meta", text: `${STATUS[j.status] || j.status} · ${fmtTime(j.createdAt)}` }))) : [el("p", { class: "empty", text: "아직 실행한 작업이 없습니다." })]));
+    $("fileList").replaceChildren(el("div", { class: "listhead" }, el("span", { text: "결과 파일" }), el("span", { text: `${files.length}개` })),
+      ...(files.length ? files.map(f => el("button", { class: "row", type: "button", onclick: () => openFile(f.path) },
+        el("span", { class: "nm", text: f.path.split("/").pop() }),
+        el("span", { class: "meta", text: `${f.path.split("/")[0]}/ · ${fmtTime(f.mtime)}` }))) : [el("p", { class: "empty", text: "저장된 결과 파일이 없습니다." })]));
+  } catch (e) {
+    $("jobList").replaceChildren(el("p", { class: "empty", text: "기록을 불러오지 못했습니다: " + e.message }));
+  }
+}
+function openJob(id) {
+  setView("hist");
+  const v = $("viewer");
+  v.hidden = false;
+  const box = el("section", { class: "job" });
+  v.replaceChildren(el("header", {}, el("h2", { text: "작업 결과" }), el("button", { class: "btn small", type: "button", text: "닫기", onclick: () => { v.hidden = true; if (stream) stream.close(); } })), box);
+  showJob(id, box);
+  v.scrollIntoView({ block: "start" });
+}
+async function openFile(p) {
+  setView("hist");
+  const v = $("viewer");
+  v.hidden = false;
+  v.replaceChildren(el("p", { class: "empty", text: "여는 중…" }));
+  try {
+    const f = await api("/api/file?p=" + encodeURIComponent(p));
+    const body = el("div", { class: "md" });
+    body.innerHTML = renderMd(f.text);
+    v.replaceChildren(el("header", {}, el("h2", { text: f.path }), el("button", { class: "btn small", type: "button", text: "닫기", onclick: () => { v.hidden = true; } })), body);
+  } catch (e) {
+    v.replaceChildren(el("p", { class: "empty", text: e.message }));
+  }
+  v.scrollIntoView({ block: "start" });
+}
+// ── 시작 준비 화면 ─────────────────────────────────────
+// 서버의 /api/setup 이 Claude 설치·로그인·스킬·사업 정보 상태를 알려준다.
+const PLAN = { max: "Max 구독", pro: "Pro 구독", team: "Team", enterprise: "Enterprise" };
+function checkItem(ok, title, ...help) {
+  return el("li", { class: ok ? "check ok" : "check" },
+    el("span", { class: "mark", "aria-hidden": "true", text: ok ? "✓" : "!" }),
+    el("b", { text: title + (ok ? "" : " — 필요") }),
+    ...help.filter(Boolean).map(h => typeof h === "string" ? el("p", { text: h }) : h));
+}
+const codeLine = (before, code, after = "") => el("p", {}, before, el("code", { text: code }), after);
+
+async function renderSetup() {
+  const box = $("setupChecks");
+  box.replaceChildren(el("p", { class: "status", text: "확인하는 중입니다… (최대 20초)" }));
+  let s;
+  try { s = await api("/api/setup"); }
+  catch (e) { box.replaceChildren(el("p", { class: "status warn", text: "상태를 불러오지 못했습니다: " + e.message })); return null; }
+
+  const a = s.auth;
+  const how = a?.loggedIn ? (a.method === "claude.ai" ? `Claude ${PLAN[a.plan] || "계정"}` : "API 키") : "";
+  const brandOk = s.brands.some(b => b.ready);
+  box.replaceChildren(
+    el("div", { class: "phead" }, el("h2", { text: "실행 준비 확인" }),
+      el("p", { text: "아래 네 가지가 모두 ✓이면 스킬을 실행할 수 있습니다. 실행 비용은 이 컴퓨터에 로그인한 내 Claude 계정에서 나갑니다." })),
+    el("ul", { class: "checks" },
+      checkItem(s.claudeFound, "Claude Code 설치",
+        s.claudeFound ? "설치되어 있습니다." : "Claude Code가 이 컴퓨터에 없습니다. 설치한 뒤 명령판을 껐다 켜 주세요.",
+        !s.claudeFound && el("p", {}, "설치 안내: ", el("a", { href: "https://code.claude.com/docs/ko/setup", target: "_blank", rel: "noopener", text: "Claude Code 설치 문서" }))),
+      checkItem(!!a?.loggedIn, "Claude 로그인",
+        a?.loggedIn ? `${how}${a.email ? ` (${a.email})` : ""}로 로그인되어 있습니다.` : "아직 로그인하지 않았습니다.",
+        s.claudeFound && !a?.loggedIn && codeLine("터미널(명령 프롬프트)을 열고 ", "claude", " 를 입력해 로그인한 뒤, 아래 [다시 확인]을 눌러 주세요."),
+        s.claudeFound && !a?.loggedIn && "Claude Pro·Max 구독이나 Anthropic API 키 중 하나가 필요합니다."),
+      checkItem(s.skills.missing.length === 0, `마케팅 스킬 ${s.skills.installed}/${s.skills.total}개`,
+        s.skills.missing.length ? `빠진 스킬: ${s.skills.missing.slice(0, 8).join(", ")}${s.skills.missing.length > 8 ? " 외" : ""}. 설치 파일을 다시 실행해 주세요.` : "모두 설치되어 있습니다."),
+      checkItem(brandOk, "내 사업 정보",
+        brandOk ? `등록됨: ${s.brands.filter(b => b.ready).map(b => b.name).join(", ")}` : "아래 칸을 채우고 저장해 주세요. 모든 스킬이 이 정보를 기준으로 결과를 만듭니다.",
+        codeLine("작업 폴더: ", s.workspace))),
+    el("div", { class: "actions" },
+      el("button", { class: "btn", type: "button", text: "다시 확인", onclick: renderSetup }),
+      s.ready ? el("button", { class: "btn primary", type: "button", text: "스킬 실행하러 가기", onclick: () => setView("run") }) : null),
+  );
+  return s;
+}
+
+// 사업 정보 입력 칸. 비워 둔 칸은 문서에 "확인 필요"로 들어간다.
+// 업종을 맨 앞에 둔다. 업종을 고르면 아래 칸들의 회색 예시가 그 업종에 맞게 바뀐다(SETUP_EXAMPLES).
+const SETUP_FIELDS = [
+  S("industry", "업종 (먼저 고르면 아래 예시가 업종에 맞게 바뀝니다)", ["음식점·카페", "소매·쇼핑몰", "교육·강의", "미용·건강", "전문 서비스", "온라인 서비스·앱", "기타"]),
+  T("name", "사업(브랜드) 이름", "예: 행복한 빵집, 김OO 강사", true),
+  T("what", "무슨 일을 하나요 (한 줄)", "예: 동네 수제 빵집, 주문 케이크 전문", true),
+  T("region", "지역", "예: 창원 성산구, 온라인 전국"),
+  T("customers", "주요 고객", "예: 30~40대 직장인, 아이 생일 케이크를 찾는 부모"),
+  T("site", "사이트·블로그·인스타 주소", "예: blog.naver.com/아이디"),
+  T("channels", "지금 쓰는 홍보 채널", "예: 네이버 블로그, 인스타그램, 당근"),
+  S("tone", "말투", ["친근한 존댓말", "정중하고 신뢰감 있게", "짧고 활기차게", "전문가답게 차분히"]),
+  A("offer", "대표 상품·서비스와 가격 (한 줄에 하나)", "예: 생크림 케이크 1호 32,000원"),
+  A("strengths", "우리만의 강점 (한 줄에 하나)", "예: 당일 아침에 굽는다, 쌀가루 반죽"),
+  T("avoid", "쓰지 말았으면 하는 표현", "예: 최고, 1등 같은 과장"),
+];
+// 업종별 입력 예시 (회색 글씨로만 보이고 저장되지 않는다). 없는 업종·"기타"는 칸마다 적힌 기본 예시를 쓴다.
+// 가격은 칸을 어떻게 채우는지 보여 주는 예시일 뿐 실제 시세가 아니다.
+const SETUP_EXAMPLES = {
+  "음식점·카페": { name: "행복한 빵집", what: "동네 수제 빵집, 주문 케이크 전문", region: "창원 성산구", customers: "30~40대 직장인, 아이 생일 케이크를 찾는 부모",
+    site: "instagram.com/아이디", channels: "인스타그램, 네이버 플레이스, 당근", offer: "생크림 케이크 1호 32,000원\n소금빵 3,500원",
+    strengths: "당일 아침에 굽는다\n쌀가루 반죽", avoid: "최고, 1등 같은 과장" },
+  "소매·쇼핑몰": { name: "오늘의 리빙", what: "주방·생활용품 온라인 쇼핑몰", region: "온라인 전국 배송", customers: "자취를 시작한 20~30대, 살림에 관심 많은 주부",
+    site: "smartstore.naver.com/아이디", channels: "스마트스토어, 인스타그램, 카카오톡 채널", offer: "스테인리스 밀폐용기 4종 세트 29,900원\n규조토 발매트 15,900원",
+    strengths: "오후 2시 전 주문은 당일 출고\n직접 써 보고 고른 상품만 판매", avoid: "무조건, 100% 같은 단정 표현" },
+  "교육·강의": { name: "김OO 강사", what: "직장인 대상 생성형 AI 활용 강의", region: "서울·경기 출강, 온라인 전국", customers: "업무에 AI를 쓰고 싶은 직장인, 기업 교육 담당자",
+    site: "blog.naver.com/아이디", channels: "네이버 블로그, 유튜브, 링크드인", offer: "기업 출강 반나절 과정 (견적 문의)\n온라인 입문반 4주 150,000원",
+    strengths: "실습 위주, 수업 당일 바로 쓰는 업무 예제\n수강 후 한 달 질문 응대", avoid: "누구나 월 천만 원 같은 수익 약속" },
+  "미용·건강": { name: "봄결 헤어", what: "1인 예약제 헤어숍, 손상모 케어 전문", region: "부산 해운대구", customers: "펌·염색으로 머릿결이 상한 20~40대 여성",
+    site: "instagram.com/아이디", channels: "네이버 예약, 인스타그램, 당근", offer: "클리닉 펌 120,000원\n두피 스케일링 40,000원",
+    strengths: "한 번에 한 손님만 받는 1:1 시술\n시술 전 모발 상태 진단", avoid: "완치, 효과 보장 같은 의료 표현" },
+  "전문 서비스": { name: "바른세무회계", what: "소상공인 세무 기장·종합소득세 신고 대행", region: "대전 유성구, 비대면 전국", customers: "개업 1~3년 차 자영업자, 프리랜서",
+    site: "www.내사이트.com", channels: "네이버 블로그, 지식인, 소개", offer: "월 기장료 100,000원부터\n종합소득세 신고 대행 (견적 문의)",
+    strengths: "카톡으로 영수증만 보내면 끝\n신고 전 절세 항목 점검표 제공", avoid: "세금 0원 같은 보장 표현" },
+  "온라인 서비스·앱": { name: "모아가계부", what: "자영업자용 매출·지출 관리 앱", region: "온라인 전국", customers: "장부 정리가 어려운 1인 자영업자",
+    site: "www.내사이트.com", channels: "인스타그램, 네이버 블로그, 앱스토어", offer: "기본 무료\n프로 요금제 월 9,900원",
+    strengths: "카드 매출 자동 불러오기\n부가세 신고용 자료 한 번에 내려받기", avoid: "혁신적인, 압도적인 같은 막연한 표현" },
+};
+function applySetupExamples(industry) {
+  const ex = SETUP_EXAMPLES[industry] || {};
+  SETUP_FIELDS.forEach(f => {
+    const input = $("su_" + f.k);
+    if (!input || f.t === "sel") return;
+    input.placeholder = ex[f.k] ? "예: " + ex[f.k].replace(/\n/g, f.t === "area" ? "\n" : ", ") : (f.ph || "");
+  });
+}
+const setupValues = {};
+function renderSetupForm() {
+  SETUP_FIELDS.forEach(f => { if (!(f.k in setupValues)) setupValues[f.k] = f.t === "sel" ? f.o[0] : ""; });
+  const msg = el("span", { class: "status", role: "status" });
+  const fields = SETUP_FIELDS.map(f => {
+    const id = "su_" + f.k;
+    const input = f.t === "sel" ? el("select", { id }, ...f.o.map(o => el("option", { value: o, text: o })))
+      : f.t === "area" ? el("textarea", { id, placeholder: f.ph || "" })
+      : el("input", { id, type: "text", placeholder: f.ph || "" });
+    input.value = setupValues[f.k];
+    input.addEventListener("input", e => { setupValues[f.k] = e.target.value; });
+    if (f.k === "industry") input.addEventListener("change", e => { setupValues[f.k] = e.target.value; applySetupExamples(e.target.value); });
+    return el("div", { class: f.t === "area" ? "field wide" : "field" },
+      el("label", { for: id }, f.l, f.r ? el("span", { class: "req", text: "*" }) : null), input);
+  });
+  const save = el("button", { class: "btn primary", type: "button", text: "저장하기" });
+  save.onclick = async () => {
+    save.disabled = true; msg.className = "status"; msg.textContent = "저장하는 중…";
+    try {
+      const r = await api("/api/setup", { method: "POST", body: JSON.stringify(setupValues) });
+      store.set("brand", r.brand.key);
+      if (r.brand.site) store.set("mySite", r.brand.site);
+      msg.textContent = `저장했습니다 (${r.brand.doc}). 화면을 새로 고칩니다…`;
+      setTimeout(() => { location.hash = ""; location.reload(); }, 900);
+    } catch (e) { msg.className = "status warn"; msg.textContent = e.message; save.disabled = false; }
+  };
+  $("setupForm").replaceChildren(
+    el("div", { class: "phead" }, el("h2", { text: "내 사업 정보" }),
+      el("p", { text: "한 번만 적어 두면 모든 스킬이 이 내용을 기준으로 씁니다. 저장은 비용이 들지 않습니다. 같은 이름으로 다시 저장하면 고쳐지고, 다른 이름이면 브랜드가 하나 더 생깁니다." })),
+    el("div", { class: "fields" }, ...fields),
+    el("details", {}, el("summary", { text: "더 자세히 채우고 싶다면" }),
+      el("p", { class: "ds", text: "저장한 뒤 [실행] 화면에서 '제품 마케팅 문서' 스킬을 고르고 사이트 주소를 넣으면, Claude가 사이트를 읽고 고객·문제·차별점 항목까지 채워 줍니다. 이때는 내 Claude 계정 사용량이 듭니다." })),
+    el("div", { class: "actions" }, save, msg),
+  );
+  applySetupExamples(setupValues.industry);
+}
+
+// ── 휴대폰에서 쓰기 (고급) ─────────────────────────────
+// 기본은 Tailscale(내 기기에서만, 도메인 필요 없음). 내 도메인 주소가 필요하면 Cloudflare.
+// 확인할 수 있는 단계는 ✓/!로, 사용자가 직접 해야 하는 단계는 번호로 보여 준다.
+const stepItem = (n, title, ...help) => el("li", { class: "check info" },
+  el("span", { class: "mark", "aria-hidden": "true", text: String(n) }), el("b", { text: title }),
+  ...help.filter(Boolean).map(h => typeof h === "string" ? el("p", { text: h }) : h));
+const link = (href, text) => el("a", { href, target: "_blank", rel: "noopener", text });
+let remoteTab = null;
+async function renderRemote() {
+  const box = $("setupRemote");
+  box.replaceChildren(el("p", { class: "status", text: "휴대폰 접속 상태를 확인하는 중…" }));
+  let r;
+  try { r = await api("/api/remote"); }
+  catch (e) { box.replaceChildren(el("p", { class: "status warn", text: "상태를 불러오지 못했습니다: " + e.message })); return; }
+  const head = el("div", { class: "phead" }, el("h2", { text: "휴대폰에서 쓰기 (고급)" }),
+    el("p", { text: "켜 두면 밖에서도 휴대폰으로 이 PC의 명령판을 열 수 있습니다. 이 PC와 명령판이 켜져 있어야 하고, 실행 비용은 똑같이 이 PC의 Claude 계정에서 나갑니다. 필요 없으면 꺼 둔 채로 두세요." }));
+  if (r.isRemote) { box.replaceChildren(head, el("p", { class: "ds", text: "지금 밖에서 접속 중입니다. 접속 설정은 PC에서만 바꿀 수 있습니다." })); return; }
+
+  const msg = el("p", { class: "status", role: "status" });
+  const act = async (body, busy) => {
+    msg.className = "status"; msg.textContent = busy;
+    try {
+      const res = await api("/api/remote", { method: "POST", body: JSON.stringify(body) });
+      if (res.consentUrl) {
+        msg.replaceChildren("Tailscale에서 한 번 허락이 필요합니다. ", link(res.consentUrl, "허락 페이지 열기"), "에서 허락한 뒤 [휴대폰 접속 켜기]를 다시 눌러 주세요.");
+        return;
+      }
+      await renderRemote();
+    } catch (e) { msg.className = "status warn"; msg.textContent = e.message; }
+  };
+  const t = r.tailscale || {}, c = r.cloudflare;
+  const tsOn = r.mode === "tailscale" && t.serving;
+  const url = r.mode === "tailscale" ? t.url : r.mode === "cloudflare" ? `https://${c.publicHost}/` : "";
+  const copy = el("button", { class: "btn small", type: "button", text: "주소 복사", onclick: async e => {
+    try { await navigator.clipboard.writeText(url); e.target.textContent = "복사했습니다"; } catch { e.target.textContent = "직접 복사해 주세요"; } } });
+  const off = el("button", { class: "btn small", type: "button", text: "끄기", onclick: () => act({ action: "off" }, "끄는 중…") });
+  const state =
+    r.mode === "off" ? el("div", { class: "rstate" }, "지금: 꺼짐 (이 PC에서만 열립니다)")
+    : r.mode === "tailscale" && !t.serving ? el("div", { class: "rstate" },
+        "지금: Tailscale로 켜 두었지만 연결이 끊겨 있습니다. 아래 4번에서 다시 켜 주세요.", off)
+    : el("div", { class: "rstate on" },
+        r.mode === "tailscale" ? "지금: 켜짐 (Tailscale) — 휴대폰 주소" : `지금: 켜짐 (내 도메인) — ${c.connected ? "터널 연결됨" : c.error || "터널 연결 중…"}`,
+        el("code", { text: url }), copy, off);
+
+  remoteTab = remoteTab || (r.mode === "cloudflare" ? "cloudflare" : "tailscale");
+  const tabBtn = (key, text) => el("button", { class: "btn small", type: "button", text, "aria-pressed": String(remoteTab === key),
+    onclick: () => { remoteTab = key; renderRemote(); } });
+  const tabs = el("div", { class: "rtabs" }, tabBtn("tailscale", "Tailscale (쉬움·추천)"), tabBtn("cloudflare", "내 도메인 주소 (Cloudflare·고급)"));
+
+  let body;
+  if (remoteTab === "tailscale") {
+    body = el("ul", { class: "checks" },
+      checkItem(!!t.installed, "1. 이 PC에 Tailscale 설치",
+        t.installed ? "설치되어 있습니다." : el("p", {}, link("https://tailscale.com/download", "tailscale.com/download"), "에서 설치한 뒤 아래 [다시 확인]을 눌러 주세요.")),
+      checkItem(!!t.running, "2. 이 PC에서 Tailscale 로그인",
+        t.running ? `${t.login || "계정"}으로 로그인되어 있습니다.` : "Tailscale 앱을 열어 로그인해 주세요. 구글 계정 등으로 가입할 수 있고 개인은 무료입니다."),
+      stepItem(3, "휴대폰에 Tailscale 앱 설치·로그인",
+        `앱스토어·플레이스토어에서 'Tailscale'을 받아 2번과 같은 계정${t.login ? `(${t.login})` : ""}으로 로그인하세요. 휴대폰 앱이 켜져 있어야 주소가 열립니다.`),
+      // 선택 기능이라 꺼져 있을 때 "— 필요"를 붙이지 않도록 번호로 보여 준다
+      (tsOn ? (...h) => checkItem(true, "4. 휴대폰 접속 켜기", ...h) : (...h) => stepItem(4, "휴대폰 접속 켜기", ...h))(
+        tsOn ? "켜져 있습니다. 위 주소를 휴대폰 브라우저에서 여세요. 카카오톡 '나와의 채팅'에 보내 두거나 홈 화면에 추가하면 편합니다."
+          : "같은 Tailscale 계정으로 로그인한 내 기기에서만 열리고, 다른 사람에게는 열리지 않습니다.",
+        !tsOn && el("div", { class: "actions" }, el("button", { class: "btn primary", type: "button", text: "휴대폰 접속 켜기",
+          ...(t.installed && t.running ? {} : { disabled: "" }), onclick: () => act({ action: "tailscale-on" }, "켜는 중… (최대 30초)") })),
+        tsOn && r.allowedEmails.length ? `들어올 수 있는 계정: ${r.allowedEmails.join(", ")}` : null));
+  } else {
+    const install = r.platform === "darwin" ? "brew install cloudflared" : "winget install --id Cloudflare.cloudflared";
+    const f = (k, label, attrs) => el("div", { class: "field" }, el("label", { for: "rc_" + k, text: label }), el("input", { id: "rc_" + k, type: "text", ...attrs }));
+    const form = el("div", { class: "fields" },
+      f("publicHost", "내 주소", { placeholder: "예: skills.내도메인.com", value: c.publicHost || "" }),
+      f("accessTeam", "팀 주소", { placeholder: "예: 우리팀.cloudflareaccess.com", value: c.accessTeam || "" }),
+      f("accessAud", "AUD 태그 (64글자)", { placeholder: c.hasAud ? "저장되어 있음 — 바꿀 때만 붙여 넣기" : "Access 애플리케이션의 Application Audience (AUD) Tag" }),
+      f("tunnelToken", "터널 토큰", { type: "password", autocomplete: "off", placeholder: c.hasToken ? "저장되어 있음 — 바꿀 때만 붙여 넣기" : "eyJ로 시작하는 긴 글자" }),
+      f("allowedEmails", "들어올 수 있는 이메일 (쉼표로 구분)", { placeholder: "예: me@gmail.com, staff@gmail.com", value: r.mode === "cloudflare" ? r.allowedEmails.join(", ") : "" }));
+    const save = el("button", { class: "btn primary", type: "button", text: "저장하고 켜기", onclick: () => {
+      const v = k => $("rc_" + k).value;
+      act({ action: "cloudflare-save", publicHost: v("publicHost"), accessTeam: v("accessTeam"), accessAud: v("accessAud"), tunnelToken: v("tunnelToken"), allowedEmails: v("allowedEmails") }, "저장하고 터널을 켜는 중…");
+    } });
+    body = el("div", { class: "stack" },
+      el("p", { class: "ds", text: "내 도메인 주소로 어디서나 열 수 있고, 허락한 이메일로 로그인한 사람만 들어옵니다. 준비물: Cloudflare 계정(무료)과 그 계정에 연결된 도메인. Cloudflare 화면은 영어이고 메뉴 이름이 바뀔 수 있습니다. 어렵다면 Tailscale 방식을 쓰세요." }),
+      el("ul", { class: "checks" },
+        checkItem(!!c.installed, "1. 이 PC에 cloudflared 설치",
+          c.installed ? "설치되어 있습니다." : codeLine("터미널(명령 프롬프트)에서 ", install, " 를 실행한 뒤 명령판을 껐다 켜 주세요.")),
+        stepItem(2, "터널 만들기",
+          "Cloudflare 대시보드 → Zero Trust → Networks → Tunnels → Create a tunnel → Cloudflared. 이름을 정하면 나오는 설치 명령 안의 긴 토큰(eyJ로 시작)을 복사해 아래 '터널 토큰'에 붙여 넣으세요. 설치 명령 자체는 실행하지 않아도 됩니다."),
+        stepItem(3, "주소 연결",
+          `같은 터널의 Public Hostname에서 하위 이름(예: skills)과 도메인을 고르고, Service는 HTTP, URL은 127.0.0.1:${r.port} 로 적습니다. 그 주소가 아래 '내 주소'입니다.`),
+        stepItem(4, "로그인 문 달기 (꼭 필요)",
+          "Zero Trust → Access → Applications → Add an application → Self-hosted. 3번 주소를 넣고 정책(Policy)은 Allow + Emails에 들어올 이메일을 적습니다. 저장한 뒤 애플리케이션 화면의 Application Audience (AUD) Tag를 복사하세요. 팀 주소(이름.cloudflareaccess.com)는 Zero Trust 설정(Settings)에 있습니다."),
+        stepItem(5, "아래 칸 채우고 저장", "로그인 문이 없거나 값이 틀리면 명령판이 밖에서 온 요청을 모두 거절합니다(안전한 쪽으로 막힘).")),
+      form, el("div", { class: "actions" }, save));
+  }
+  box.replaceChildren(head, state, tabs, body, msg,
+    el("div", { class: "actions" }, el("button", { class: "btn", type: "button", text: "다시 확인", onclick: renderRemote })));
+}
+
+function setView(name) {
+  const views = { run: "viewRun", hist: "viewHist", setup: "viewSetup" };
+  for (const [k, id] of Object.entries(views)) $(id).hidden = k !== name;
+  $("topFields").hidden = name !== "run";
+  $("vRun").setAttribute("aria-pressed", String(name === "run"));
+  $("vHist").setAttribute("aria-pressed", String(name === "hist"));
+  $("vSetup").setAttribute("aria-pressed", String(name === "setup"));
+  if (name === "hist") renderHistory();
+  if (name === "setup") { renderSetup(); renderSetupForm(); renderRemote(); }
+}
+
+// ── 새 버전 알림 ────────────────────────────────────────
+// 서버가 GitHub 릴리스를 확인해 알려 준다. 새 버전이 없거나 확인에 실패하면 띠를 숨긴다.
+async function checkUpdate() {
+  const bar = $("updateBar");
+  let u;
+  try { u = await api("/api/update"); } catch { return; }
+  const eyebrow = document.querySelector(".eyebrow");
+  if (eyebrow && u.current) eyebrow.textContent = `by eflip · v${u.current}`;
+  if (!u.available) { bar.hidden = true; return; }
+  const notes = el("div", { class: "notes", hidden: "" });
+  notes.innerHTML = DOMPurify.sanitize(marked.parse(u.notes || "바뀐 점이 적혀 있지 않습니다."));
+  const acts = el("div", { class: "acts" },
+    el("button", { class: "btn small", type: "button", text: "바뀐 점 보기", onclick: e => {
+      notes.hidden = !notes.hidden; e.target.textContent = notes.hidden ? "바뀐 점 보기" : "바뀐 점 접기"; } }),
+    u.canApply
+      ? el("button", { class: "btn small primary", type: "button", text: "지금 업데이트", onclick: () => applyUpdate(u.latest) })
+      : el("a", { class: "btn small", href: u.page, target: "_blank", rel: "noopener", text: "내려받기 페이지" }));
+  bar.className = "updatebar";
+  bar.replaceChildren(el("div", { class: "msg", text: `새 버전 ${u.latest}이 나왔습니다. (지금 ${u.current}) 사업 정보와 결과물은 그대로 남습니다.` }), acts, notes);
+  bar.hidden = false;
+}
+async function applyUpdate(target) {
+  const bar = $("updateBar");
+  const say = (text, err) => { bar.className = "updatebar" + (err ? " err" : ""); bar.replaceChildren(el("div", { class: "msg", text })); bar.hidden = false; };
+  say("새 버전을 받는 중입니다…");
+  try { await api("/api/update", { method: "POST", body: "{}" }); }
+  catch (e) { say(e.message, true); setTimeout(checkUpdate, 6000); return; }
+  say("설치하는 중입니다. 1~3분 뒤 이 화면이 저절로 새로 열립니다. 창을 닫지 마세요.");
+  // 서버가 꺼졌다가 새 버전으로 다시 켜질 때까지 3초마다 물어본다
+  const until = Date.now() + 5 * 60 * 1000;
+  const poll = async () => {
+    try { const u = await api("/api/update"); if (u.current === target) return location.reload(); } catch {}
+    if (Date.now() < until) return setTimeout(poll, 3000);
+    say("업데이트가 끝나지 않았습니다. 바탕화면 아이콘으로 명령판을 다시 켜 보세요. 계속 안 되면 설치 폴더의 app/logs/update.log 파일을 보내 문의해 주세요.", true);
+  };
+  setTimeout(poll, 4000);
+}
+
+// ── 시작 ───────────────────────────────────────────────
+$("vRun").onclick = () => setView("run");
+$("vHist").onclick = () => { $("viewer").hidden = true; setView("hist"); };
+$("vSetup").onclick = () => setView("setup");
+function setSite(next) {
+  const prev = mySite;
+  mySite = next;
+  store.set("mySite", mySite);
+  // 직접 고치지 않은 사이트 칸만 새 주소로 바꾼다
+  SKILLS.forEach(s => { if (values[s.id]) s.f.forEach(f => { if (f.site && values[s.id][f.k] === prev) values[s.id][f.k] = mySite; }); });
+}
+$("brand").replaceChildren(...BRANDS.map(b => el("option", { value: b.key, text: b.name })));
+$("brand").value = brand.key;
+$("brand").addEventListener("change", e => {
+  const prevBrand = brand;
+  brand = BRANDS.find(b => b.key === e.target.value) || BRANDS[0];
+  store.set("brand", brand.key);
+  if (mySite === prevBrand.site) { setSite(brand.site); $("mySite").value = mySite; }
+  renderPanel();
+});
+$("mySite").value = mySite;
+$("mySite").addEventListener("input", e => { setSite(e.target.value); renderPanel(); });
+$("q").addEventListener("input", e => { query = e.target.value; renderTabs(); renderList(); });
+const start = location.hash.slice(1);
+select(byId[start] ? start : byId[store.get("lastSkill")] ? store.get("lastSkill") : starters[0] || "seo-audit", false);
+// 처음 켰거나 준비가 덜 됐으면(설치·로그인·사업 정보) 시작 준비 화면을 먼저 보여 준다.
+api("/api/setup").then(s => { if (!s.ready) setView("setup"); }).catch(() => {});
+checkUpdate();
+</script>
+</body>
+</html>

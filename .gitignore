@@ -1,0 +1,14 @@
+# 사용자 PC마다 다른 설정과 실행 기록은 올리지 않는다
+app/config.json
+app/jobs/
+app/logs/
+# 외부 접속(터널) 인증 파일
+*.cloudflared.json
+cloudflared.yml
+node_modules/
+.DS_Store
+Thumbs.db
+# 설치 때 생기는 파일 (Node·브라우저 도구 설정)
+app/mcp.json
+runtime/
+app/server.pid

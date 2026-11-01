@@ -1,0 +1,11 @@
+# 저장소 안에서는 줄바꿈을 LF로 통일한다 (Windows·Mac 공통)
+* text=auto eol=lf
+# Windows 실행 파일은 CRLF여야 제대로 돈다
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.vbs text eol=crlf
+# 배포용 zip에는 넣지 않는다 (개발·배포 도구)
+/.github export-ignore
+RELEASE_NOTES.md export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore

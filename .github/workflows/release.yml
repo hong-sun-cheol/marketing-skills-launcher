@@ -1,0 +1,25 @@
+# 새 버전 내보내기: VERSION 파일을 올리고 같은 번호로 태그(v0.2.0 등)를 붙여 올리면 돈다.
+# 배포용 zip을 만들어 GitHub 릴리스에 붙인다. 설치된 명령판들은 이 릴리스를 보고 새 버전을 알린다.
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: VERSION과 태그가 같은지 확인
+        run: |
+          V="$(tr -d '\r\n ' < VERSION)"
+          if [ "v$V" != "$GITHUB_REF_NAME" ]; then echo "VERSION($V)과 태그($GITHUB_REF_NAME)가 다릅니다"; exit 1; fi
+          echo "V=$V" >> "$GITHUB_ENV"
+      - name: 배포용 zip 만들기
+        # git archive는 실행 권한(Mac용 .sh)과 .gitattributes의 줄바꿈 규칙을 그대로 지킨다
+        run: git archive --format=zip --prefix="marketing-skills-launcher-$V/" -o "marketing-skills-launcher-$V.zip" HEAD
+      - name: 릴리스 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "marketing-skills-launcher-$V.zip" --title "$V" --notes-file RELEASE_NOTES.md

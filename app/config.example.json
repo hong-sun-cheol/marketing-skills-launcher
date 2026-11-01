@@ -1,0 +1,14 @@
+{
+  "port": 8787,
+  "projectDir": "",
+  "claudeExe": "",
+  "remote": {
+    "mode": "off",
+    "tailscaleHost": "",
+    "publicHost": "",
+    "accessTeam": "",
+    "accessAud": "",
+    "tunnelToken": "",
+    "allowedEmails": []
+  }
+}
