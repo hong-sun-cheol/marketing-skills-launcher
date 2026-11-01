@@ -571,6 +571,7 @@ function checkItem(ok, title, ...help) {
     el("b", { text: title + (ok ? "" : " — 필요") }),
     ...help.filter(Boolean).map(h => typeof h === "string" ? el("p", { text: h }) : h));
 }
+const IS_MAC = /Mac/i.test(navigator.platform || navigator.userAgent);
 const codeLine = (before, code, after = "") => el("p", {}, before, el("code", { text: code }), after);
 
 async function renderSetup() {
@@ -588,8 +589,12 @@ async function renderSetup() {
       el("p", { text: "아래 네 가지가 모두 ✓이면 스킬을 실행할 수 있습니다. 실행 비용은 이 컴퓨터에 로그인한 내 Claude 계정에서 나갑니다." })),
     el("ul", { class: "checks" },
       checkItem(s.claudeFound, "Claude Code 설치",
-        s.claudeFound ? "설치되어 있습니다." : "Claude Code가 이 컴퓨터에 없습니다. 설치한 뒤 명령판을 껐다 켜 주세요.",
-        !s.claudeFound && el("p", {}, "설치 안내: ", el("a", { href: "https://code.claude.com/docs/ko/setup", target: "_blank", rel: "noopener", text: "Claude Code 설치 문서" }))),
+        s.claudeFound ? "설치되어 있습니다." : "Claude Code가 이 컴퓨터에 없습니다. 아래 안내대로 설치한 뒤 [다시 확인]을 눌러 주세요.",
+        !s.claudeFound && (IS_MAC
+          ? codeLine("① Mac의 '터미널' 앱을 열고 다음 한 줄을 붙여 넣은 뒤 Enter: ", "curl -fsSL https://claude.ai/install.sh | bash")
+          : codeLine("① 시작 메뉴에서 'PowerShell'을 열고 다음 한 줄을 붙여 넣은 뒤 Enter: ", "irm https://claude.ai/install.ps1 | iex")),
+        !s.claudeFound && el("p", { text: "② 끝나면 그 창을 닫고 새 창을 열어 claude 를 입력하면 로그인 화면이 열립니다. 무료 플랜은 안 되고 Pro 이상 구독(또는 API 키)이 필요합니다." }),
+        !s.claudeFound && el("p", {}, "막히면: ", el("a", { href: "https://code.claude.com/docs/ko/setup", target: "_blank", rel: "noopener", text: "Claude Code 설치 문서" }))),
       checkItem(!!a?.loggedIn, "Claude 로그인",
         a?.loggedIn ? `${how}${a.email ? ` (${a.email})` : ""}로 로그인되어 있습니다.` : "아직 로그인하지 않았습니다.",
         s.claudeFound && !a?.loggedIn && codeLine("터미널(명령 프롬프트)을 열고 ", "claude", " 를 입력해 로그인한 뒤, 아래 [다시 확인]을 눌러 주세요."),

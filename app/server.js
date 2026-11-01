@@ -68,7 +68,9 @@ function findClaude() {
   candidates.push(path.join(os.homedir(), ".local", "bin", IS_WIN ? "claude.exe" : "claude"));
   return candidates.find(c => fs.existsSync(c)) || null;
 }
-const CLAUDE = findClaude();
+// 명령판이 켜진 뒤에 Claude Code를 설치해도 껐다 켤 필요가 없게, 못 찾았으면 쓸 때마다 다시 찾는다.
+let CLAUDE = findClaude();
+function claudePath() { if (!CLAUDE) CLAUDE = findClaude(); return CLAUDE; }
 
 // Claude Code에 허용할 도구. 나머지는 dontAsk 모드에서 묻지 않고 거절된다.
 // 브라우저(Playwright)는 보기 도구만 연다. 클릭·입력은 지켜보는 사람이 없으니 막아 둔다.
@@ -229,8 +231,8 @@ function startNext() {
   // 설치 파일이 만든 브라우저 도구 설정이 있으면 그것만 쓴다(사용자의 다른 MCP 설정은 섞지 않음).
   if (fs.existsSync(MCP_FILE)) args.push("--mcp-config", MCP_FILE, "--strict-mcp-config");
   args.push("--allowedTools", ...ALLOWED_TOOLS);
-  if (!CLAUDE) {
-    addEvent(j, "error", "Claude Code를 찾지 못했습니다. 설치 후 명령판을 다시 켜 주세요.");
+  if (!claudePath()) {
+    addEvent(j, "error", "Claude Code를 찾지 못했습니다. '시작 준비' 화면의 안내대로 설치해 주세요.");
     setStatus(j, "error"); saveJob(j); running = null; return startNext();
   }
   // Mac·리눅스는 새 프로세스 그룹으로 띄워야 취소할 때 하위 프로세스까지 함께 멈출 수 있다.
@@ -424,7 +426,7 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === "GET" && p === "/brands.js") {
       res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" });
-      return res.end(`const BRANDS = ${JSON.stringify(loadBrands())};\nconst CLAUDE_READY = ${!!CLAUDE};\n`);
+      return res.end(`const BRANDS = ${JSON.stringify(loadBrands())};\nconst CLAUDE_READY = ${!!claudePath()};\n`);
     }
     if (req.method === "POST" && p === "/api/run") {
       const body = await readBody(req);
@@ -469,7 +471,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
     if (req.method === "GET" && p === "/api/setup") {
-      return json(res, 200, await setupStatus({ claude: CLAUDE, project: PROJECT, publicDir: path.join(ROOT, "public"), brands: loadBrands() }));
+      return json(res, 200, await setupStatus({ claude: claudePath(), project: PROJECT, publicDir: path.join(ROOT, "public"), brands: loadBrands() }));
     }
     if (req.method === "POST" && p === "/api/setup") {
       const body = await readBody(req);
