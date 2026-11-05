@@ -18,8 +18,8 @@ function fixture(t, overrides = {}) {
     calls.push(url);
     let data;
     if (url.endsWith("/user")) data = { login: "tester" };
-    else if (url.includes("/user/repos?")) data = [{ full_name: "tester/site", private: true, default_branch: "main" }];
-    else if (url.endsWith("/repos/tester/site")) data = { full_name: "tester/site", default_branch: "main" };
+    else if (url.includes("/user/repos?")) data = [{ full_name: "tester/site", private: true, default_branch: "main" }, { full_name: "tester/server", description: "사이트 API 서버", default_branch: "main" }];
+    else if (/\/repos\/tester\/(site|server)$/.test(url)) data = { full_name: "tester/" + url.split("/").at(-1), default_branch: "main" };
     else if (url.endsWith("/commits/main")) data = { sha: "a".repeat(40), commit: { tree: { sha: "b".repeat(40) } } };
     else if (url.includes("/git/trees/")) data = { truncated: true, tree: [
       { path: "app/page.tsx", type: "blob", mode: "100644", size: 20, sha: "c".repeat(40) },
@@ -85,6 +85,21 @@ test("image round trip, reference validation and attachment limits", t => {
 test("source filter excludes generated and credential material", () => {
   for (const p of [".env", ".env.production", "config.json", "secrets.json", "credentials.json", "node_modules/a.js", "dist/app.js", "foo.min.js", "package-lock.json", "a/../../b.js"]) assert.equal(sourceFile(p), false, p);
   for (const p of ["app/page.tsx", "src/pricing.vue", "README.md", "public/robots.txt", "src/routes/+page.svelte"]) assert.equal(sourceFile(p), true, p);
+});
+test("automatic discovery attaches site plus server and passes both sources to existing skill", async t => {
+  const { m } = fixture(t);
+  await m.connect({ mode: "cli" });
+  const found = await m.discover("site 관련 서버 코드까지 넣어 줘", async input => {
+    if (input.round === 1) return { inspect: ["tester/site"], selected: [], message: "사이트 확인" };
+    if (input.round === 2) { assert.equal(input.inspected[0].files[0].path, "app/page.tsx"); return { inspect: ["tester/server"], selected: [], message: "서버 확인" }; }
+    return { inspect: [], selected: [{ repository: "tester/site", reason: "사이트 코드" }, { repository: "tester/server", reason: "관련 서버 코드" }], message: "둘 다 첨부" };
+  });
+  assert.equal(found.materials.length, 2);
+  assert.equal(found.materials[1].sourceNote, "관련 서버 코드");
+  const context = m.context(found.materials.map(r => r.id));
+  assert.ok(context.prompt.includes("tester/site")); assert.ok(context.prompt.includes("tester/server"));
+  const duplicate = await m.importRepo("tester/site");
+  assert.throws(() => m.context([found.materials[0].id, duplicate.id]), /중복 첨부/);
 });
 test("auth and network errors are actionable and never echo credentials", async t => {
   for (const status of [401, 403, 404, 409, 429, 500]) {

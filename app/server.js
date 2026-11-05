@@ -14,6 +14,7 @@ const { setupStatus, saveSetup } = require("./setup.js");
 const { makeUpdater } = require("./update.js");
 const remoteKit = require("./remote.js");
 const { makeMaterials } = require("./materials.js");
+const { askClaude } = require("./repository-finder.js");
 
 const ROOT = __dirname;
 const IS_WIN = process.platform === "win32";
@@ -448,6 +449,11 @@ const server = http.createServer(async (req, res) => {
       if (req.method === "DELETE" && p === "/api/github") return json(res, 200, materials.disconnect());
       if (req.method === "GET" && p === "/api/github/repos") return json(res, 200, await materials.repos(Number(url.searchParams.get("page") || 1)));
       if (req.method === "POST" && p === "/api/github/import") return json(res, 200, await materials.importRepo((await readBody(req)).repository));
+      if (req.method === "POST" && p === "/api/github/discover") {
+        if (!claudePath()) return json(res, 400, { error: "Claude Code를 찾지 못했습니다. 시작 준비를 확인해 주세요." });
+        const body = await readBody(req);
+        return json(res, 200, await materials.discover(body.instruction, input => askClaude(claudePath(), input)));
+      }
     }
     if (req.method === "POST" && p === "/api/materials/images") return json(res, 200, materials.upload(await readBody(req, 12 * 1024 * 1024)));
     const preview = p.match(/^\/api\/materials\/([a-f0-9]{32})\/image$/);

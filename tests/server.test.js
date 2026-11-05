@@ -16,7 +16,7 @@ test("HTTP upload → preview → existing skill run delivers image path; invali
   const port = probe.address().port; await new Promise(r => probe.close(r));
   const fake = path.join(temp, "fake-claude"); fs.writeFileSync(fake, "test fixture");
   fs.writeFileSync(path.join(app, "config.json"), JSON.stringify({ port, projectDir: work, claudeExe: fake }));
-  const child = spawn(process.execPath, ["--require", path.join(__dirname, "fixtures/fake-claude.cjs"), path.join(app, "server.js")], { env: { ...process.env, MSL_TEST_CLAUDE: fake }, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+  const child = spawn(process.execPath, ["--require", path.join(__dirname, "fixtures/fake-claude.cjs"), path.join(app, "server.js")], { env: { ...process.env, MSL_TEST_CLAUDE: fake, MSL_TEST_GITHUB: "1" }, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
   t.after(async () => { const ended = new Promise(r => child.once("close", r)); child.kill(); await ended; fs.rmSync(temp, { recursive: true, force: true }); });
   await new Promise((resolve, reject) => { const timeout = setTimeout(() => reject(new Error("server startup timed out")), 10000); child.stdout.on("data", d => { if (d.toString().includes("http://")) { clearTimeout(timeout); resolve(); } }); child.once("error", reject); });
   const base = `http://127.0.0.1:${port}`;
@@ -34,4 +34,10 @@ test("HTTP upload → preview → existing skill run delivers image path; invali
   assert.equal((await post("/api/materials/images", { data: PNG }, { origin: "https://other.test" })).status, 403);
   assert.equal((await post("/api/materials/images", { data: "fake" })).status, 400);
   assert.equal((await post("/api/run", { skill: "seo-audit", prompt: "/seo-audit 기존 입력" })).status, 200);
+  assert.equal((await post("/api/github", { mode: "token", token: "test-key" })).status, 200);
+  const discover = await post("/api/github/discover", { instruction: "site 관련 코드를 찾아 넣어 줘" });
+  assert.equal(discover.status, 200);
+  const found = await discover.json();
+  assert.equal(found.materials[0].repository, "demo/site");
+  assert.equal((await post("/api/github/discover", { instruction: "" })).status, 400);
 });

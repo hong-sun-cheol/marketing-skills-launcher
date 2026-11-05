@@ -23,30 +23,31 @@ window.AnalysisMaterials = (() => {
   const githubBox = node("div", { class: "material-github" });
   const chosen = node("div", { class: "material-chosen" });
   const uploads = node("div", { class: "material-images" });
-  let repository = null, images = [], busy = false, connected = false, rows = [], page = 1, more = false, onChange = () => {};
+  let repositories = [], images = [], busy = false, connected = false, rows = [], page = 1, more = false, onChange = () => {};
+  let instruction = "", discovery = "";
   let githubState = null;
   const notify = () => { renderChosen(); onChange(); };
   async function action(fn, message) {
     if (busy) return;
     busy = true; onChange(); box.setAttribute("aria-busy", "true");
     msg.className = "status"; msg.textContent = message;
-    box.querySelectorAll("button, input, select").forEach(n => { n.disabled = true; });
+    box.querySelectorAll("button, input, select, textarea").forEach(n => { n.disabled = true; });
     try { await fn(); }
     catch (e) { msg.className = "status warn"; msg.textContent = e.message; }
     finally {
       busy = false; box.removeAttribute("aria-busy");
-      box.querySelectorAll("button, input, select").forEach(n => { n.disabled = false; });
+      box.querySelectorAll("button, input, select, textarea").forEach(n => { n.disabled = false; });
       notify();
     }
   }
   function renderChosen() {
-    chosen.replaceChildren(...(repository ? [node("div", { class: "material-repo" },
+    chosen.replaceChildren(...repositories.map(repository => node("div", { class: "material-repo" },
       node("strong", { text: repository.label }),
       node("p", { class: "ds", text: `${repository.branch} · ${repository.commit.slice(0, 7)} · ${repository.warning}` }),
-      button("선택한 코드 새로 받기", () => action(async () => { repository = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: repository.repository }) }); msg.textContent = "최신 코드를 첨부했습니다."; }, "최신 코드를 불러오는 중…")),
-      button("코드 첨부 제거", () => { if (!busy) { repository = null; notify(); } }))] : []));
-    const refresh = chosen.querySelector("button");
-    if (refresh) refresh.disabled = !connected || busy;
+      repository.sourceNote ? node("p", { class: "ds", text: "포함한 이유: " + repository.sourceNote }) : null,
+      button("선택한 코드 새로 받기", () => action(async () => { const fresh = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: repository.repository }) }); repositories = repositories.map(r => r.id === repository.id ? fresh : r); msg.textContent = "최신 코드를 첨부했습니다."; }, "최신 코드를 불러오는 중…")),
+      button("코드 첨부 제거", () => { if (!busy) { repositories = repositories.filter(r => r.id !== repository.id); notify(); } }))));
+    chosen.querySelectorAll(".material-repo").forEach(row => { row.querySelector("button").disabled = !connected || busy; });
     uploads.replaceChildren(...images.map(m => node("figure", { class: "material-image" },
       node("a", { href: `/api/materials/${m.id}/image`, target: "_blank", rel: "noopener" }, node("img", { src: `/api/materials/${m.id}/image`, alt: m.label })),
       node("figcaption", { text: m.label }), button("이미지 제거", () => { if (!busy) { images = images.filter(i => i.id !== m.id); notify(); } }))));
@@ -88,16 +89,45 @@ window.AnalysisMaterials = (() => {
     githubBox.replaceChildren(node("strong", { text: `GitHub · ${githubState.login}` }),
       node("div", { class: "actions" }, button("저장소 목록 새로고침", () => action(async () => { await loadRepos(); msg.textContent = "목록을 새로 받았습니다."; }, "저장소 목록을 불러오는 중…")),
         button("연결 해제", () => action(async () => {
-          await request("/api/github", { method: "DELETE" }); connected = false; repository = null; rows = []; renderGithub();
+          await request("/api/github", { method: "DELETE" }); connected = false; repositories = []; rows = []; discovery = ""; renderGithub();
           msg.textContent = "GitHub 연결과 현재 코드 선택을 해제했습니다. 과거 분석 자료는 작업 폴더에 남습니다.";
         }, "연결을 해제하는 중…"))),
       search, select,
       node("div", { class: "actions" }, button("선택한 코드 첨부", () => {
         if (!select.value) { msg.className = "status warn"; msg.textContent = "먼저 저장소를 선택해 주세요."; return; }
         const name = select.value;
-        action(async () => { repository = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: name }) }); msg.textContent = "코드를 첨부했습니다. 아래 실행 버튼을 누르면 분석에 반영됩니다."; }, "코드를 불러오는 중… 파일 수에 따라 잠시 걸립니다.");
+        action(async () => {
+          if (repositories.length >= 5 && !repositories.some(r => r.repository.toLowerCase() === name.toLowerCase())) throw new Error("저장소는 최대 5개까지 함께 첨부할 수 있습니다.");
+          const repository = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: name }) });
+          repositories = [...repositories.filter(r => r.repository.toLowerCase() !== name.toLowerCase()), repository];
+          msg.textContent = "코드를 첨부했습니다. 다른 저장소도 이어서 선택해 함께 넣을 수 있습니다.";
+        }, "코드를 불러오는 중… 파일 수에 따라 잠시 걸립니다.");
       }), more ? button("저장소 더 보기", () => action(async () => { await loadRepos(false); msg.textContent = `${rows.length}개 저장소를 불러왔습니다.`; }, "추가 저장소를 불러오는 중…")) : null),
-      node("p", { class: "ds", text: "기본 브랜치의 주요 코드 최대 120개를 읽습니다. 큰 파일·설치 패키지·비밀 설정은 제외하며, 가져온 범위는 아래에 표시됩니다." }));
+      node("p", { class: "ds", text: "저장소 최대 5개를 함께 첨부합니다. 각 저장소 기본 브랜치의 주요 코드 최대 120개를 읽으며, 가져온 범위는 아래에 표시됩니다." }));
+    const input = node("textarea", { id: "relatedCodeRequest", maxlength: "2000", placeholder: "예: eflipsolution을 분석에 넣고 싶어. GitHub 저장소의 코드를 살펴보고 관련 서버 코드도 있으면 함께 넣어 줘." });
+    input.value = instruction;
+    input.addEventListener("input", () => { instruction = input.value; });
+    const report = node("p", { class: "ds", role: "status", style: "white-space:pre-wrap", text: discovery });
+    const finder = node("div", { class: "material-finder" },
+      node("label", { for: "relatedCodeRequest", text: "Claude에게 관련 코드 찾기 요청" }), input,
+      node("p", { class: "ds", text: "사이트 이름과 원하는 코드 범위만 적으세요. Claude가 저장소 목록과 주요 코드의 연결 관계를 살펴보고 관련 코드를 자동 첨부합니다. 이 단계에도 Claude 계정 사용량이 발생합니다." }),
+      button("관련 코드 찾아서 첨부", () => action(async () => {
+        if (!instruction.trim()) throw new Error("찾을 사이트 이름과 관련 코드에 대한 요청을 적어 주세요.");
+        const found = await request("/api/github/discover", { method: "POST", body: JSON.stringify({ instruction }) });
+        // 찾지 못하거나 일부 실패한 경우 현재 첨부를 지우지 않는다.
+        const combined = new Map(repositories.map(r => [r.repository.toLowerCase(), r]));
+        const skipped = [];
+        for (const m of found.materials) {
+          if (combined.size >= 5 && !combined.has(m.repository.toLowerCase())) { skipped.push(m.repository); continue; }
+          combined.set(m.repository.toLowerCase(), m);
+        }
+        repositories = [...combined.values()];
+        discovery = [found.message, ...found.warnings, ...(skipped.length ? ["첨부 한도 때문에 제외됨: " + skipped.join(", ") + ". 기존 첨부를 제거한 뒤 다시 요청해 주세요."] : [])].join("\n");
+        report.textContent = discovery;
+        msg.textContent = found.materials.length ? `관련 코드 찾기를 마쳤습니다. 현재 ${repositories.length}개 저장소가 첨부되어 있습니다.` : "새로 첨부한 저장소가 없습니다. 아래 찾기 결과를 확인해 주세요.";
+      }, "Claude가 저장소와 코드 연결을 확인하는 중… 몇 분 걸릴 수 있습니다.")), report);
+    githubBox.append(finder);
+    if (busy) githubBox.querySelectorAll("button, input, select, textarea").forEach(n => { n.disabled = true; });
   }
   async function uploadFiles(list) {
     if (busy || !list.length) return;
@@ -131,7 +161,7 @@ window.AnalysisMaterials = (() => {
     } catch (e) { githubBox.replaceChildren(node("p", { class: "status warn", text: e.message }), button("다시 확인", init)); }
   }
   init();
-  return { mount: () => box, ids: () => [...(repository ? [repository.id] : []), ...images.map(m => m.id)],
+  return { mount: () => box, ids: () => [...repositories.map(m => m.id), ...images.map(m => m.id)],
     busy: () => busy, onChange: fn => { onChange = fn; },
-    summary: () => [...(repository ? [`GitHub: ${repository.label} (${repository.warning})`] : []), ...images.map(m => `스크린샷: ${m.label}`)].join("\n") };
+    summary: () => [...repositories.map(r => `GitHub: ${r.label} (${r.warning})`), ...images.map(m => `스크린샷: ${m.label}`)].join("\n") };
 })();

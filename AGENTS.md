@@ -10,6 +10,7 @@
 - `app/server.js`: Node.js 내장 HTTP 서버, Claude Code 실행, 작업·결과 관리. 기본 주소는 `http://127.0.0.1:8787`이다.
 - `app/setup.js`: 시작 준비와 사업 정보 설정. `app/remote.js`: 휴대폰·외부 접속. `app/update.js`: 새 버전 확인·업데이트.
 - `app/materials.js`, `app/public/materials.js`: GitHub 코드·스크린샷 첨부와 화면. 인증 파일 `app/github-auth.json`은 작업 폴더 밖에 보관하고 원격에 올리지 않는다.
+- `app/repository-finder.js`: Claude로 사이트·관련 서버 코드 찾기. 코드 미리보기와 접근 가능한 목록으로 선택을 검증하고, 분류 호출에 실행 도구나 인증 정보를 제공하지 않는다.
 - `app/public/`: 사용자 화면과 스킬 목록·안내. `docs/`: 공개 소개 페이지.
 - `installer/`와 루트의 `install-windows.cmd`, `install-mac.command`: Windows·Mac 설치 진입점과 설치·실행 파일.
 - `skills/`: 가져온 마케팅 스킬 52개. 출처·기준 판은 `skills/SOURCE.md`에 있다.
@@ -25,7 +26,7 @@
 
 ## 실행과 확인
 - 로컬 서버는 저장소 루트에서 `node app/server.js`로 실행한다. 실행 시 작업 폴더와 `app/jobs/` 등이 생성되므로, 시험에는 `app/config.json`의 `projectDir`을 별도 시험 폴더로 지정한다.
-- JavaScript를 바꾸면 해당 파일에 `node --check <파일 경로>`를 실행하고 변경된 동작을 직접 확인한다. 첨부·실행 관련 검사는 `node --test tests/materials.test.js tests/server.test.js`로 실행한다. 별도 패키지 설치는 필요 없다.
+- JavaScript를 바꾸면 해당 파일에 `node --check <파일 경로>`를 실행하고 변경된 동작을 직접 확인한다. 첨부·실행 관련 검사는 `node --test tests/materials.test.js tests/repository-finder.test.js tests/server.test.js`로 실행한다. 별도 패키지 설치는 필요 없다.
 - 화면 변경은 브라우저를 보이게 열어 해당 흐름을 확인한다. 실제 Claude 스킬 실행은 계정 사용량이 발생하므로 단순 화면 확인과 구분한다.
 - 설치·업데이트 변경은 별도 시험 경로에서 확인한다. 실제 사용 중인 설치본이나 결과물로 시험하지 않는다.
 - 문서만 바꿀 때는 내용·경로와 `git diff --check`를 확인한다.
