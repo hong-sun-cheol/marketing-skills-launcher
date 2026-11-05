@@ -12,3 +12,6 @@ Thumbs.db
 app/mcp.json
 runtime/
 app/server.pid
+app/github-auth.json
+app/materials/
+.playwright-mcp/

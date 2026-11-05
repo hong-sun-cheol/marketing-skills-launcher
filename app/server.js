@@ -13,6 +13,7 @@ const { spawn, execFile, execFileSync } = require("node:child_process");
 const { setupStatus, saveSetup } = require("./setup.js");
 const { makeUpdater } = require("./update.js");
 const remoteKit = require("./remote.js");
+const { makeMaterials } = require("./materials.js");
 
 const ROOT = __dirname;
 const IS_WIN = process.platform === "win32";
@@ -48,6 +49,7 @@ const RESULT_FOLDERS = ["기획", "카피", "광고", "SEO", "이메일", "SNS",
 const MAX_RUN_MS = 30 * 60 * 1000;
 fs.mkdirSync(JOB_DIR, { recursive: true });
 fs.mkdirSync(PROJECT, { recursive: true });
+const materials = makeMaterials({ root: ROOT, project: PROJECT });
 // 설치 폴더는 app 폴더의 한 단계 위다 (VERSION, runtime, stop.cmd가 있는 곳)
 const updater = makeUpdater({ installDir: path.dirname(ROOT), workDir: PROJECT, port: PORT, logDir: path.join(ROOT, "logs") });
 
@@ -167,7 +169,7 @@ let running = null;
 
 function publicJob(j, full) {
   const base = { id: j.id, skill: j.skill, title: j.title, status: j.status, createdAt: j.createdAt,
-    startedAt: j.startedAt, endedAt: j.endedAt, files: j.files, cost: j.cost };
+    startedAt: j.startedAt, endedAt: j.endedAt, files: j.files, cost: j.cost, materials: j.materials || [] };
   return full ? { ...base, prompt: j.prompt, events: j.events, result: j.result } : base;
 }
 function saveJob(j) {
@@ -346,16 +348,27 @@ const STATIC = {
   "/": ["index.html", "text/html; charset=utf-8"],
   "/skills.js": ["skills.js", "text/javascript; charset=utf-8"],
   "/skill-guide.js": ["skill-guide.js", "text/javascript; charset=utf-8"],
+  "/materials.js": ["materials.js", "text/javascript; charset=utf-8"],
 };
 function json(res, code, data) {
   res.writeHead(code, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
   res.end(JSON.stringify(data));
 }
-function readBody(req) {
+function readBody(req, limit = 200_000) {
   return new Promise((ok, fail) => {
-    let b = "";
-    req.on("data", d => { b += d; if (b.length > 200_000) { fail(new Error("too big")); req.destroy(); } });
-    req.on("end", () => { try { ok(JSON.parse(b || "{}")); } catch (e) { fail(e); } });
+    const chunks = []; let size = 0, rejected = false;
+    req.on("data", d => {
+      if (rejected) return;
+      size += d.length;
+      if (size > limit) { rejected = true; chunks.length = 0; fail(Object.assign(new Error("첨부 자료가 너무 큽니다."), { status: 413 })); }
+      else chunks.push(d);
+    });
+    req.on("error", fail);
+    req.on("end", () => {
+      if (rejected) return;
+      try { ok(JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}")); }
+      catch { fail(Object.assign(new Error("요청 형식이 올바르지 않습니다."), { status: 400 })); }
+    });
   });
 }
 
@@ -428,13 +441,29 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" });
       return res.end(`const BRANDS = ${JSON.stringify(loadBrands())};\nconst CLAUDE_READY = ${!!claudePath()};\n`);
     }
+    if (p.startsWith("/api/github")) {
+      if (req.remoteUser) return json(res, 403, { error: "GitHub 연결과 코드 선택은 이 PC에서 해 주세요." });
+      if (req.method === "GET" && p === "/api/github") return json(res, 200, materials.status());
+      if (req.method === "POST" && p === "/api/github") return json(res, 200, await materials.connect(await readBody(req)));
+      if (req.method === "DELETE" && p === "/api/github") return json(res, 200, materials.disconnect());
+      if (req.method === "GET" && p === "/api/github/repos") return json(res, 200, await materials.repos(Number(url.searchParams.get("page") || 1)));
+      if (req.method === "POST" && p === "/api/github/import") return json(res, 200, await materials.importRepo((await readBody(req)).repository));
+    }
+    if (req.method === "POST" && p === "/api/materials/images") return json(res, 200, materials.upload(await readBody(req, 12 * 1024 * 1024)));
+    const preview = p.match(/^\/api\/materials\/([a-f0-9]{32})\/image$/);
+    if (req.method === "GET" && preview) {
+      const file = materials.preview(preview[1]);
+      res.writeHead(200, { "content-type": file.mime, "cache-control": "no-store", "x-content-type-options": "nosniff" });
+      return res.end(file.bytes);
+    }
     if (req.method === "POST" && p === "/api/run") {
       const body = await readBody(req);
       const skill = String(body.skill || "");
       const prompt = String(body.prompt || "");
       if (!/^[a-z0-9-]+$/.test(skill) || !prompt.startsWith(`/${skill} `)) return json(res, 400, { error: "스킬 정보가 올바르지 않습니다." });
+      const inputs = materials.context(body.materialIds);
       const j = { id: Date.now().toString(36) + crypto.randomBytes(3).toString("hex"), skill,
-        title: String(body.title || skill).slice(0, 120), prompt, status: "queued", createdAt: Date.now(),
+        title: String(body.title || skill).slice(0, 120), prompt: prompt + inputs.prompt, materials: inputs.materials, status: "queued", createdAt: Date.now(),
         events: [], result: "", files: [], cost: null, clients: new Set() };
       jobs.set(j.id, j);
       queue.push(j);
@@ -508,7 +537,7 @@ const server = http.createServer(async (req, res) => {
     }
     json(res, 404, { error: "없는 주소입니다." });
   } catch (e) {
-    json(res, 500, { error: "서버 오류: " + e.message });
+    json(res, e.status || 500, { error: e.status ? e.message : "서버 오류: " + e.message });
   }
 });
 

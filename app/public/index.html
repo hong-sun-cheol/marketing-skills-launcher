@@ -79,7 +79,7 @@ h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.03em; text
 .foot a { color: inherit; }
 .foot > a { font-weight: 600; color: var(--ink); }
 label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
-input[type=text], input[type=url], input[type=password], textarea, select {
+input[type=text], input[type=url], input[type=password], input[type=search], textarea, select {
   width: 100%; font: inherit; font-size: 14.5px; color: var(--ink); background: var(--surface);
   border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 12px; transition: border-color .15s, box-shadow .15s;
 }
@@ -245,6 +245,19 @@ details[open] summary { margin-bottom: 4px; }
   h1 { font-size: 20px; }
   .hero .wrap { padding-top: 20px; }
 }
+.materials { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); display: grid; gap: 14px; min-width: 0; }
+.materials h3, .materials p { margin: 0; }
+.material-github { display: grid; gap: 10px; min-width: 0; }
+.material-github input, .material-github select { width: 100%; min-width: 0; }
+.material-github details > * + * { margin-top: 10px; }
+.material-repo { padding: 12px; background: var(--accent-soft); border-radius: 8px; overflow-wrap: anywhere; }
+.material-repo button { margin: 8px 6px 0 0; }
+.material-drop { border: 1px dashed var(--accent-line); border-radius: 8px; padding: 14px; display: grid; gap: 10px; }
+.material-drop:focus { outline: 2px solid var(--accent); }
+.material-images { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.material-image { margin: 0; min-width: 0; display: grid; gap: 8px; align-content: start; }
+.material-image img { width: 100%; height: 120px; object-fit: contain; background: white; border: 1px solid var(--line); border-radius: 6px; }
+.material-image figcaption { font-size: 12px; overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -311,6 +324,7 @@ details[open] summary { margin-bottom: 4px; }
   </footer>
 </div>
 
+<script src="/materials.js"></script>
 <script>
 // 화면 밖에서 Claude Code에 함께 전할 지시. 공통 지시(COMMON_RULES)는 skills.js에 있다.
 const RUN_RULES = [
@@ -432,6 +446,7 @@ function renderPanel() {
       el("div", {}, el("b", { text: "이럴 때 쓰세요" }), el("p", { text: g.w })),
       el("div", {}, el("b", { text: "받게 될 결과물" }), el("p", { text: g.out }))) : null,
     el("div", { class: "fields" }, fields),
+    AnalysisMaterials.mount(),
     el("details", {}, el("summary", { text: "Claude Code에 보낼 명령 보기" }), el("div", { class: "term" }, el("pre", { id: "out" }))),
     el("div", { class: "actions" },
       el("button", { class: "btn primary", type: "button", id: "runBtn", onclick: run, text: "실행" }),
@@ -446,18 +461,20 @@ function renderPanel() {
 }
 function update() {
   const s = byId[current];
-  $("out").textContent = buildPrompt(s);
+  $("out").textContent = buildPrompt(s) + (AnalysisMaterials.summary() ? "\n\n[함께 전달할 분석 자료]\n" + AnalysisMaterials.summary() : "");
+  $("runBtn").disabled = AnalysisMaterials.busy();
   const miss = missing(s);
   document.querySelectorAll(".field").forEach(n => n.classList.toggle("missing", miss.some(f => f.k === n.dataset.k)));
   $("status").className = miss.length ? "status warn" : "status";
   $("status").textContent = miss.length ? "* 표시 칸을 채워 주세요: " + miss.map(f => f.l).join(", ") : "";
 }
 async function run() {
+  if (AnalysisMaterials.busy()) return;
   const s = byId[current];
   if (missing(s).length) return update();
   $("runBtn").disabled = true;
   try {
-    const job = await api("/api/run", { method: "POST", body: JSON.stringify({ skill: s.id, title: titleOf(s), prompt: buildPrompt(s) }) });
+    const job = await api("/api/run", { method: "POST", body: JSON.stringify({ skill: s.id, title: titleOf(s), prompt: buildPrompt(s), materialIds: AnalysisMaterials.ids() }) });
     store.set("job:" + s.id, job.id);
     showJob(job.id, $("job"));
   } catch (e) {
@@ -486,15 +503,19 @@ function showJob(id, box) {
   const pill = el("span", { class: "pill" }), elapsed = el("span", { class: "elapsed" });
   const cancel = el("button", { class: "btn small", type: "button", text: "취소", hidden: "" });
   const title = el("h3");
+  const inputInfo = el("p", { class: "meta", hidden: "" });
   const log = el("div", { class: "log", "aria-live": "polite" });
   const files = el("div", { class: "files" });
   const result = el("div", { class: "md" });
   const cost = el("div", { class: "meta" });
-  box.replaceChildren(el("div", { class: "jobhead" }, title, pill, elapsed, cancel), log, files, result, cost);
+  box.replaceChildren(el("div", { class: "jobhead" }, title, pill, elapsed, cancel), inputInfo, log, files, result, cost);
   let st = null;
   const paint = () => {
     if (!st) return;
     title.textContent = st.title;
+    title.title = (st.materials || []).map(m => m.label).join(", ");
+    inputInfo.hidden = !(st.materials || []).length;
+    inputInfo.textContent = "사용한 분석 자료: " + (st.materials || []).map(m => m.label).join(", ");
     pill.className = "pill " + st.status;
     pill.textContent = STATUS[st.status] || st.status;
     const live = st.status === "running" || st.status === "queued";
@@ -839,6 +860,7 @@ async function applyUpdate(target) {
 }
 
 // ── 시작 ───────────────────────────────────────────────
+AnalysisMaterials.onChange(() => { if ($("out")) update(); });
 $("vRun").onclick = () => setView("run");
 $("vHist").onclick = () => { $("viewer").hidden = true; setView("hist"); };
 $("vSetup").onclick = () => setView("setup");
