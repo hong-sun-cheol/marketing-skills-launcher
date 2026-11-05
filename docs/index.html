@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>마케팅 스킬 명령판 | Claude로 내 가게 마케팅 글 쓰는 무료 프로그램 - 이플립</title>
-<meta name="description" content="칸을 채우고 실행을 누르면 Claude가 인스타그램 글, 광고 문구, 블로그 점검, 마케팅 계획을 내 사업 정보에 맞춰 써 주는 무료 Windows 프로그램. Claude Pro 이상 구독이 필요합니다.">
+<meta name="description" content="Claude로 마케팅 글·계획·점검을 만드는 무료 Windows 프로그램. GitHub 저장소 코드와 블로그 통계 스크린샷을 첨부해 기존 52개 스킬에 함께 활용하세요. Claude 유료 구독 또는 API 키 필요.">
 <link rel="canonical" href="https://eflipsolution.xyz/marketing-skills/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:site_name" content="이플립 솔루션">
 <meta property="og:title" content="마케팅 스킬 명령판 · 칸을 채우고 [실행]을 누르면, 내 가게 마케팅 글이 나옵니다">
-<meta property="og:description" content="인스타그램 글부터 마케팅 계획까지 52가지 일을 Claude가 내 사업 정보에 맞춰 씁니다. 프로그램은 무료, Claude Pro 이상 구독 필요.">
+<meta property="og:description" content="52개 마케팅 스킬에 GitHub 코드와 통계 스크린샷을 함께 전달하세요. 0.2.0에서 분석 자료 첨부를 지원합니다. 프로그램은 무료, Claude 계정 사용량은 별도.">
 <meta property="og:image" content="https://eflipsolution.xyz/marketing-skills/img/03-result.jpg">
 <meta property="og:url" content="https://eflipsolution.xyz/marketing-skills/">
 <meta name="theme-color" content="#0f1235">
@@ -23,8 +23,9 @@
   "name": "마케팅 스킬 명령판",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Windows 10, Windows 11",
-  "description": "칸을 채우고 실행을 누르면 Claude가 내 사업 정보에 맞춰 마케팅 글·계획·점검 결과를 써 주는 무료 프로그램. Claude Pro 이상 구독 또는 API 키가 필요합니다.",
-  "softwareVersion": "0.1.2",
+  "description": "52개 마케팅 스킬로 글·계획·점검 결과를 만들고, GitHub 저장소 코드와 통계 스크린샷을 분석 자료로 첨부하는 무료 프로그램. Claude 유료 구독 또는 API 키가 필요합니다.",
+  "softwareVersion": "0.2.0",
+  "featureList": ["마케팅 스킬 52개", "GitHub 저장소 코드 첨부", "통계 스크린샷 첨부", "내 PC에 결과 저장"],
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
   "downloadUrl": "https://github.com/hong-sun-cheol/marketing-skills-launcher/releases/latest/download/marketing-skills-launcher.zip",
   "license": "https://opensource.org/licenses/MIT",
@@ -36,6 +37,9 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
+    { "@type": "Question", "name": "GitHub에 있는 내 사이트도 분석할 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "PC에서 GitHub를 연결하고 내 저장소 또는 접근 가능한 공동 작업 저장소를 선택하면 코드 사본을 기존 스킬 분석에 함께 전달합니다. 기존 GitHub CLI 로그인이나 연결 키를 사용하며, 기본 브랜치의 주요 텍스트 코드 최대 120개·총 4MB를 가져옵니다." } },
+    { "@type": "Question", "name": "로그인해야 보이는 블로그 통계는 어떻게 넣나요?", "acceptedAnswer": { "@type": "Answer", "text": "통계의 기간·지표 이름·단위가 보이게 캡처한 뒤 분석 자료 영역에 첨부하세요. PNG·JPG·WebP를 장당 8MB, 최대 6장까지 파일 선택·끌어 놓기·붙여 넣기로 올릴 수 있습니다." } },
+    { "@type": "Question", "name": "이미 설치했는데 새 기능이 안 보여요", "acceptedAnswer": { "@type": "Answer", "text": "0.2.0 이상에서 지원합니다. 명령판 위쪽 알림의 지금 업데이트를 누르세요. 알림 확인은 최대 6시간 간격이며, 기다리기 어렵다면 최신 zip을 내려받아 같은 위치에 다시 설치할 수 있습니다. 사업 정보·결과물·설정은 보존됩니다." } },
     { "@type": "Question", "name": "정말 무료인가요?", "acceptedAnswer": { "@type": "Answer", "text": "명령판은 무료입니다. 글을 만드는 Claude는 본인 계정의 유료 구독(Pro 이상)이나 API 키로 돌아갑니다." } },
     { "@type": "Question", "name": "코딩을 전혀 몰라도 되나요?", "acceptedAnswer": { "@type": "Answer", "text": "설치는 파일 더블클릭으로 끝나고, 쓰는 동안에는 칸을 채우고 버튼을 누릅니다. 단, Claude Code를 처음 설치할 때 명령 한 줄을 붙여 넣는 단계가 한 번 있습니다. 시작 준비 화면이 그 한 줄을 그대로 보여 줍니다." } },
     { "@type": "Question", "name": "만들어진 글을 그대로 올려도 되나요?", "acceptedAnswer": { "@type": "Answer", "text": "꼭 읽어 보고 고쳐서 쓰세요. 숫자·후기처럼 근거가 없는 내용은 [확인 필요]로 표시되지만, 최종 확인은 쓰는 분의 몫입니다." } },
@@ -211,15 +215,16 @@ footer a { color: inherit; }
       <a class="brand" href="https://eflipsolution.xyz"><span class="logo" aria-hidden="true">e</span>이플립 솔루션</a>
       <a class="small" href="https://eflipsolution.xyz/contact">강의·제작 문의</a>
     </nav>
-    <p class="eyebrow">무료 · Windows용 (Mac은 시험 중)</p>
+    <p class="eyebrow">v0.2.0 · 무료 · Windows용 (Mac은 시험 중)</p>
     <h1>칸을 채우고 [실행]을 누르면, 내 가게 마케팅 글이 나옵니다</h1>
     <p class="sub">인스타그램 글, 광고 문구, 네이버 블로그 점검, 한 달 마케팅 계획까지 52가지 일을 Claude가 내 사업 정보에 맞춰 써 줍니다. 결과는 내 PC 폴더에 파일로 저장됩니다.</p>
+    <p class="sub">이제 <b>GitHub의 내 사이트 코드</b>와 <b>블로그 통계 스크린샷</b>도 함께 넣을 수 있습니다. 쓰던 스킬에 자료만 더해 분석하세요.</p>
     <div class="cta">
       <a class="btn" href="https://github.com/hong-sun-cheol/marketing-skills-launcher/releases/latest/download/marketing-skills-launcher.zip">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
         무료로 내려받기 (Windows)
       </a>
-      <span class="links"><a href="#install">설치 방법 보기</a><a href="#mac">Mac에서 설치하기</a></span>
+      <span class="links"><a href="#install">설치 방법 보기</a><a href="#materials">새 기능 사용법</a><a href="#mac">Mac에서 설치하기</a></span>
     </div>
     <p class="note">프로그램은 무료입니다. <strong>실행하려면 Claude 유료 구독(Pro 이상)이 필요합니다.</strong></p>
   </div>
@@ -247,6 +252,44 @@ footer a { color: inherit; }
         </tbody>
       </table>
       <p class="more">그 밖에 광고 문구, 이메일, 네이버 블로그 검색 점검, 가격 정하기, 경쟁 가게 정리 등 모두 52가지가 들어 있습니다.</p>
+    </div>
+  </section>
+
+  <section id="materials">
+    <div class="wrap">
+      <h2>내 사이트 코드와 통계 화면을 함께 넣으세요</h2>
+      <p class="lead">0.2.0에 추가된 분석 자료 첨부입니다. 기존 52개 스킬의 입력칸 아래에서 필요한 자료만 선택하고, 평소처럼 [실행]을 누르면 됩니다.</p>
+      <div class="install">
+        <div class="card">
+          <h3>GitHub에 있는 내 사이트</h3>
+          <ol>
+            <li><b>이 PC의 GitHub 계정 연결</b>을 누릅니다. GitHub CLI에 로그인된 계정을 사용합니다.</li>
+            <li>내 저장소 또는 접근 가능한 공동 작업 저장소를 고르고 <b>선택한 코드 첨부</b>를 누릅니다.</li>
+            <li>검색 노출 점검 등 원하는 스킬을 실행합니다. 코드를 바꿨다면 <b>선택한 코드 새로 받기</b>로 갱신하세요.</li>
+          </ol>
+          <p>처음 연결한다면 <b>처음 연결하거나 다른 계정으로 연결하기</b>를 펼치세요. GitHub에서 분석할 저장소와 <b>Contents: Read-only(읽기 전용)</b> 권한을 선택한 연결 키로 연결할 수 있습니다. 조직 저장소는 승인이 필요할 수 있습니다.</p>
+          <p class="hint">기본 브랜치의 주요 텍스트 코드 최대 120개·총 4MB·파일당 128KB를 가져옵니다. 포함·제외 수를 표시하며 GitHub 코드를 수정하거나 실행하지 않습니다. 연결과 저장소 선택은 PC에서 합니다.</p>
+        </div>
+        <div class="card">
+          <h3>로그인해야 보이는 블로그 통계</h3>
+          <ol>
+            <li>블로그 관리자 화면에서 <b>기간·지표 이름·단위</b>가 함께 보이게 캡처합니다.</li>
+            <li><b>스크린샷 첨부</b>로 파일을 고르거나 끌어 놓습니다. 첨부 영역에서 붙여 넣기도 됩니다.</li>
+            <li>미리보기를 확인하고 기존 분석 스킬을 실행합니다. 잘못 넣은 사진은 <b>이미지 제거</b>로 빼세요.</li>
+          </ol>
+          <p class="hint">PNG·JPG·WebP, 장당 8MB, 최대 6장. 글자가 작거나 화면이 잘리면 정확한 수치를 읽기 어려우니 필요한 부분을 선명하게 캡처해 주세요.</p>
+        </div>
+      </div>
+      <div class="example">
+        <figure><a class="shot" href="img/04-materials.png" title="분석 자료 화면 크게 보기"><img src="img/04-materials.png" width="743" height="907" alt="분석 자료 영역에서 GitHub 저장소 코드를 선택하고 통계 스크린샷을 첨부한 모습" loading="lazy"></a><figcaption>분석 자료 첨부 화면. 통계 이미지는 기능 설명을 위한 시험용 자료입니다.</figcaption></figure>
+        <aside>
+          <h3>기존 사용자는 이렇게 업데이트하세요</h3>
+          <p>명령판 위쪽 새 버전 알림에서 <b>지금 업데이트</b>를 누르세요. 사업 정보·결과물·설정은 그대로 남습니다.</p>
+          <p>알림은 최대 6시간 간격으로 확인합니다. 바로 쓰고 싶다면 이 페이지에서 최신 zip을 내려받아 기존과 같은 위치에 다시 설치하세요.</p>
+          <p>선택한 코드와 이미지는 스킬을 바꿔도 유지됩니다. 자료가 필요 없는 작업은 첨부를 제거한 뒤 실행하세요.</p>
+          <p><b>자료가 처리되는 곳:</b> 분석 실행 시 선택한 자료는 본인의 Claude 계정으로 전달됩니다. 사본은 내 PC 작업 폴더에 남으며, 첨부 제거·GitHub 연결 해제로 과거 자료가 지워지지는 않습니다. 일반 코드에 직접 적힌 비밀 값은 첨부 전에 확인해 주세요.</p>
+        </aside>
+      </div>
     </div>
   </section>
 
@@ -337,6 +380,9 @@ footer a { color: inherit; }
   <section id="faq">
     <div class="wrap">
       <h2>자주 묻는 질문</h2>
+      <details><summary>GitHub에 있는 내 사이트도 분석할 수 있나요?</summary><p>PC에서 GitHub를 연결하고 내 저장소 또는 접근 가능한 공동 작업 저장소를 선택하면 코드 사본을 기존 스킬 분석에 함께 전달합니다. 기존 GitHub CLI 로그인이나 연결 키를 사용하며, 기본 브랜치의 주요 텍스트 코드 최대 120개·총 4MB를 가져옵니다. <a href="#materials">연결 방법 보기</a></p></details>
+      <details><summary>로그인해야 보이는 블로그 통계는 어떻게 넣나요?</summary><p>통계의 기간·지표 이름·단위가 보이게 캡처한 뒤 분석 자료 영역에 첨부하세요. PNG·JPG·WebP를 장당 8MB, 최대 6장까지 파일 선택·끌어 놓기·붙여 넣기로 올릴 수 있습니다.</p></details>
+      <details><summary>이미 설치했는데 새 기능이 안 보여요</summary><p>0.2.0 이상에서 지원합니다. 명령판 위쪽 알림의 <b>지금 업데이트</b>를 누르세요. 알림 확인은 최대 6시간 간격이며, 기다리기 어렵다면 최신 zip을 내려받아 같은 위치에 다시 설치할 수 있습니다. 사업 정보·결과물·설정은 보존됩니다.</p></details>
       <details><summary>정말 무료인가요?</summary><p>명령판은 무료입니다. 글을 만드는 Claude는 본인 계정의 유료 구독(Pro 이상)이나 API 키로 돌아갑니다.</p></details>
       <details><summary>코딩을 전혀 몰라도 되나요?</summary><p>설치는 파일 더블클릭으로 끝나고, 쓰는 동안에는 칸을 채우고 버튼을 누릅니다. 단, Claude Code를 처음 설치할 때 명령 한 줄을 붙여 넣는 단계가 한 번 있습니다. 시작 준비 화면이 그 한 줄을 그대로 보여 줍니다.</p></details>
       <details><summary>만들어진 글을 그대로 올려도 되나요?</summary><p>꼭 읽어 보고 고쳐서 쓰세요. 숫자·후기처럼 근거가 없는 내용은 [확인 필요]로 표시되지만, 최종 확인은 쓰는 분의 몫입니다.</p></details>
