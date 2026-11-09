@@ -131,10 +131,10 @@ window.AnalysisMaterials = (() => {
           combined.set(m.repository.toLowerCase(), m);
         }
         repositories = [...combined.values()];
-        discovery = [found.message, ...found.warnings, ...(skipped.length ? ["첨부 한도 때문에 제외됨: " + skipped.join(", ") + ". 기존 첨부를 제거한 뒤 다시 요청해 주세요."] : [])].join("\n");
+        const head = found.materials.length ? `관련 코드 찾기를 마쳤습니다. 현재 ${repositories.length}개 저장소가 첨부되어 있습니다(아래 목록).` : "새로 첨부한 저장소가 없습니다. 아래 찾기 결과를 확인해 주세요.";
+        discovery = [head, found.message, ...found.warnings, ...(skipped.length ? ["첨부 한도 때문에 제외됨: " + skipped.join(", ") + ". 기존 첨부를 제거한 뒤 다시 요청해 주세요."] : [])].join("\n");
         report.textContent = discovery;
-        msg.textContent = found.materials.length ? `관련 코드 찾기를 마쳤습니다. 현재 ${repositories.length}개 저장소가 첨부되어 있습니다.` : "새로 첨부한 저장소가 없습니다. 아래 찾기 결과를 확인해 주세요.";
-      }, "Claude가 저장소와 코드 연결을 확인하는 중… 몇 분 걸릴 수 있습니다.")), report);
+      }, "Claude가 저장소와 코드 연결을 확인하는 중… 몇 분 걸릴 수 있습니다.", report)), report);
     githubBox.append(finder);
     if (busy) githubBox.querySelectorAll("button, input, select, textarea").forEach(n => { n.disabled = true; });
   }
