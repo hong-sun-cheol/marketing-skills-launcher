@@ -54,7 +54,7 @@ window.AnalysisMaterials = (() => {
       node("p", { class: "ds", text: `${fetchedAt(repository.createdAt)} · ${repository.branch} · ${repository.commit.slice(0, 7)} · ${repository.warning}` }),
       repository.sourceNote ? node("p", { class: "ds", text: "포함한 이유: " + repository.sourceNote }) : null,
       node("div", { class: "actions" },
-        button("GitHub 최신 코드로 다시 받기", () => action(async () => { const fresh = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: repository.repository }) }); repositories = repositories.map(r => r.id === repository.id ? { ...fresh, sourceNote: fresh.sourceNote || repository.sourceNote } : r); msg.textContent = "최신 코드를 첨부했습니다."; }, "최신 코드를 불러오는 중…")),
+        button("GitHub 최신 코드로 다시 받기", () => action(async () => { const fresh = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: repository.repository }) }); repositories = repositories.map(r => r.id === repository.id ? { ...fresh, sourceNote: fresh.sourceNote || repository.sourceNote, found: repository.found } : r); msg.textContent = "최신 코드를 첨부했습니다."; }, "최신 코드를 불러오는 중…")),
         button("코드 첨부 제거", () => { if (!busy) { repositories = repositories.filter(r => r.id !== repository.id); notify(); } })),
       node("p", { class: "ds", text: "첨부 뒤 GitHub 코드를 고쳐 올렸을 때만 누르세요. 첨부하고 바로 실행할 때는 필요 없습니다." }))));
     chosen.querySelectorAll(".material-repo").forEach(row => { row.querySelector("button").disabled = !connected || busy; });
@@ -134,15 +134,20 @@ window.AnalysisMaterials = (() => {
       button("관련 코드 찾아서 첨부", () => action(async () => {
         if (!instruction.trim()) throw new Error("찾을 사이트 이름과 관련 코드에 대한 요청을 적어 주세요.");
         const found = await request("/api/github/discover", { method: "POST", body: JSON.stringify({ instruction }) });
-        // 찾지 못하거나 일부 실패한 경우 현재 첨부를 지우지 않는다.
-        const combined = new Map(repositories.map(r => [r.repository.toLowerCase(), r]));
+        // 새로 찾으면 지난 찾기 결과(found)는 새 결과로 바꾸고, 직접 고른 저장소는 남긴다.
+        // 아무것도 못 찾으면 지난 결과를 지우지 않는다.
+        const kept = found.materials.length ? repositories.filter(r => !r.found) : repositories;
+        const replaced = repositories.length - kept.length;
+        const combined = new Map(kept.map(r => [r.repository.toLowerCase(), r]));
         const skipped = [];
         for (const m of found.materials) {
           if (combined.size >= 5 && !combined.has(m.repository.toLowerCase())) { skipped.push(m.repository); continue; }
-          combined.set(m.repository.toLowerCase(), m);
+          combined.set(m.repository.toLowerCase(), { ...m, found: true });
         }
         repositories = [...combined.values()];
-        const head = found.materials.length ? `관련 코드 찾기를 마쳤습니다. 현재 ${repositories.length}개 저장소가 첨부되어 있습니다(아래 목록).` : "새로 첨부한 저장소가 없습니다. 아래 찾기 결과를 확인해 주세요.";
+        const head = found.materials.length
+          ? `관련 코드 찾기를 마쳤습니다.${replaced ? ` 지난 찾기 결과 ${replaced}개는 이번 결과로 바꿨습니다.` : ""} 현재 ${repositories.length}개 저장소가 첨부되어 있습니다(아래 목록).`
+          : "새로 찾은 저장소가 없어 지금 첨부는 그대로 둡니다. 아래 찾기 결과를 확인해 주세요.";
         discovery = [head, found.message, ...found.warnings, ...(skipped.length ? ["첨부 한도 때문에 제외됨: " + skipped.join(", ") + ". 기존 첨부를 제거한 뒤 다시 요청해 주세요."] : [])].join("\n");
         report.textContent = discovery;
       }, "Claude가 저장소와 코드 연결을 확인하는 중… 몇 분 걸릴 수 있습니다.", report)), report,
