@@ -28,6 +28,11 @@ window.AnalysisMaterials = (() => {
   let instruction = "", discovery = "";
   let githubState = null;
   const notify = () => { renderChosen(); onChange(); };
+  const fetchedAt = t => {
+    if (!t) return "받은 시각 모름";
+    const d = new Date(t), now = new Date(), hm = d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+    return (d.toDateString() === now.toDateString() ? "오늘 " : d.toLocaleDateString("ko-KR", { month: "long", day: "numeric" }) + " ") + hm + "에 받은 코드";
+  };
   // out: 진행·오류 글을 띄울 곳. 누른 버튼 바로 옆에 띄워야 반응이 있는지 알아볼 수 있다.
   async function action(fn, message, out = msg) {
     if (busy) return;
@@ -45,10 +50,13 @@ window.AnalysisMaterials = (() => {
   function renderChosen() {
     chosen.replaceChildren(...repositories.map(repository => node("div", { class: "material-repo" },
       node("strong", { text: repository.label }),
-      node("p", { class: "ds", text: `${repository.branch} · ${repository.commit.slice(0, 7)} · ${repository.warning}` }),
+      // 첨부는 받은 순간의 복사본이다. 언제 받았는지 보여야 '다시 받기'가 필요한지 판단할 수 있다.
+      node("p", { class: "ds", text: `${fetchedAt(repository.createdAt)} · ${repository.branch} · ${repository.commit.slice(0, 7)} · ${repository.warning}` }),
       repository.sourceNote ? node("p", { class: "ds", text: "포함한 이유: " + repository.sourceNote }) : null,
-      button("선택한 코드 새로 받기", () => action(async () => { const fresh = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: repository.repository }) }); repositories = repositories.map(r => r.id === repository.id ? fresh : r); msg.textContent = "최신 코드를 첨부했습니다."; }, "최신 코드를 불러오는 중…")),
-      button("코드 첨부 제거", () => { if (!busy) { repositories = repositories.filter(r => r.id !== repository.id); notify(); } }))));
+      node("div", { class: "actions" },
+        button("GitHub 최신 코드로 다시 받기", () => action(async () => { const fresh = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: repository.repository }) }); repositories = repositories.map(r => r.id === repository.id ? { ...fresh, sourceNote: fresh.sourceNote || repository.sourceNote } : r); msg.textContent = "최신 코드를 첨부했습니다."; }, "최신 코드를 불러오는 중…")),
+        button("코드 첨부 제거", () => { if (!busy) { repositories = repositories.filter(r => r.id !== repository.id); notify(); } })),
+      node("p", { class: "ds", text: "첨부 뒤 GitHub 코드를 고쳐 올렸을 때만 누르세요. 첨부하고 바로 실행할 때는 필요 없습니다." }))));
     chosen.querySelectorAll(".material-repo").forEach(row => { row.querySelector("button").disabled = !connected || busy; });
     uploads.replaceChildren(...images.map(m => node("figure", { class: "material-image" },
       node("a", { href: `/api/materials/${m.id}/image`, target: "_blank", rel: "noopener" }, node("img", { src: `/api/materials/${m.id}/image`, alt: m.label })),
