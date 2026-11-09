@@ -24,16 +24,18 @@ window.AnalysisMaterials = (() => {
   const chosen = node("div", { class: "material-chosen" });
   const uploads = node("div", { class: "material-images" });
   let repositories = [], images = [], busy = false, connected = false, rows = [], page = 1, more = false, onChange = () => {};
+  let listed = false;   // 저장소 목록을 한 번이라도 받았는지 (받기 전엔 고르는 칸이 비어 보인다)
   let instruction = "", discovery = "";
   let githubState = null;
   const notify = () => { renderChosen(); onChange(); };
-  async function action(fn, message) {
+  // out: 진행·오류 글을 띄울 곳. 누른 버튼 바로 옆에 띄워야 반응이 있는지 알아볼 수 있다.
+  async function action(fn, message, out = msg) {
     if (busy) return;
     busy = true; onChange(); box.setAttribute("aria-busy", "true");
-    msg.className = "status"; msg.textContent = message;
+    out.className = "status"; out.textContent = message;
     box.querySelectorAll("button, input, select, textarea").forEach(n => { n.disabled = true; });
     try { await fn(); }
-    catch (e) { msg.className = "status warn"; msg.textContent = e.message; }
+    catch (e) { out.className = "status warn"; out.textContent = e.message; }
     finally {
       busy = false; box.removeAttribute("aria-busy");
       box.querySelectorAll("button, input, select, textarea").forEach(n => { n.disabled = false; });
@@ -55,7 +57,7 @@ window.AnalysisMaterials = (() => {
   async function loadRepos(reset = true) {
     const next = reset ? 1 : page + 1;
     const data = await request("/api/github/repos?page=" + next);
-    rows = reset ? data.repos : [...rows, ...data.repos]; page = next; more = data.more;
+    rows = reset ? data.repos : [...rows, ...data.repos]; page = next; more = data.more; listed = true;
     renderGithub();
   }
   function renderGithub() {
@@ -82,27 +84,34 @@ window.AnalysisMaterials = (() => {
     const search = node("input", { type: "search", placeholder: "저장소 이름으로 찾기", "aria-label": "저장소 검색" });
     const fill = () => {
       const q = search.value.trim().toLowerCase();
-      select.replaceChildren(node("option", { value: "", text: "분석할 저장소를 선택하세요" }),
+      const first = !listed ? "저장소 목록을 불러오는 중…" : rows.length ? "분석할 저장소를 선택하세요" : "보이는 저장소가 없습니다";
+      select.replaceChildren(node("option", { value: "", text: first }),
         ...rows.filter(r => r.fullName.toLowerCase().includes(q)).map(r => node("option", { value: r.fullName, text: `${r.fullName}${r.private ? " (비공개)" : ""}` })));
     };
     search.addEventListener("input", fill); fill();
+    const attachNote = node("p", { class: "status", role: "status", "aria-live": "polite" });
     githubBox.replaceChildren(node("strong", { text: `GitHub · ${githubState.login}` }),
       node("div", { class: "actions" }, button("저장소 목록 새로고침", () => action(async () => { await loadRepos(); msg.textContent = "목록을 새로 받았습니다."; }, "저장소 목록을 불러오는 중…")),
         button("연결 해제", () => action(async () => {
-          await request("/api/github", { method: "DELETE" }); connected = false; repositories = []; rows = []; discovery = ""; renderGithub();
+          await request("/api/github", { method: "DELETE" }); connected = false; listed = false; repositories = []; rows = []; discovery = ""; renderGithub();
           msg.textContent = "GitHub 연결과 현재 코드 선택을 해제했습니다. 과거 분석 자료는 작업 폴더에 남습니다.";
         }, "연결을 해제하는 중…"))),
       search, select,
       node("div", { class: "actions" }, button("선택한 코드 첨부", () => {
-        if (!select.value) { msg.className = "status warn"; msg.textContent = "먼저 저장소를 선택해 주세요."; return; }
+        if (!select.value) {
+          attachNote.className = "status warn";
+          attachNote.textContent = listed ? "먼저 위 칸에서 저장소를 선택해 주세요." : "저장소 목록을 불러오는 중입니다. 잠시 뒤 저장소를 고르고 다시 눌러 주세요.";
+          return;
+        }
         const name = select.value;
         action(async () => {
           if (repositories.length >= 5 && !repositories.some(r => r.repository.toLowerCase() === name.toLowerCase())) throw new Error("저장소는 최대 5개까지 함께 첨부할 수 있습니다.");
           const repository = await request("/api/github/import", { method: "POST", body: JSON.stringify({ repository: name }) });
           repositories = [...repositories.filter(r => r.repository.toLowerCase() !== name.toLowerCase()), repository];
-          msg.textContent = "코드를 첨부했습니다. 다른 저장소도 이어서 선택해 함께 넣을 수 있습니다.";
-        }, "코드를 불러오는 중… 파일 수에 따라 잠시 걸립니다.");
+          attachNote.textContent = `${name} 코드를 첨부했습니다(아래 목록). 다른 저장소도 이어서 선택해 함께 넣을 수 있습니다.`;
+        }, "코드를 불러오는 중… 파일 수에 따라 잠시 걸립니다.", attachNote);
       }), more ? button("저장소 더 보기", () => action(async () => { await loadRepos(false); msg.textContent = `${rows.length}개 저장소를 불러왔습니다.`; }, "추가 저장소를 불러오는 중…")) : null),
+      attachNote,
       node("p", { class: "ds", text: "저장소 최대 5개를 함께 첨부합니다. 각 저장소 기본 브랜치의 주요 코드 최대 120개를 읽으며, 가져온 범위는 아래에 표시됩니다." }));
     const input = node("textarea", { id: "relatedCodeRequest", maxlength: "2000", placeholder: "예: eflipsolution을 분석에 넣고 싶어. GitHub 저장소의 코드를 살펴보고 관련 서버 코드도 있으면 함께 넣어 줘." });
     input.value = instruction;
