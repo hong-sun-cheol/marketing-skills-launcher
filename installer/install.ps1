@@ -168,16 +168,25 @@ try {
 
   # 5. 바탕화면 아이콘 ------------------------------------------------------
   Step 5 "바탕화면 아이콘 만들기"
-  if ($Update) { Ok "업데이트라 기존 아이콘을 그대로 씁니다." } else {
+  # 옛 판(0.2.0 이하)의 아이콘 이름. 이름만 봐도 켜는 버튼인지 알 수 있게 '켜기'를 붙였다.
+  $oldLnk = Join-Path $DesktopDir "마케팅 스킬 명령판.lnk"
+  $newLnk = Join-Path $DesktopDir "마케팅 스킬 명령판 켜기.lnk"
+  if ($Update) {
+    if ((Test-Path $oldLnk) -and -not (Test-Path $newLnk)) {
+      Move-Item $oldLnk $newLnk
+      Ok "아이콘 이름을 '마케팅 스킬 명령판 켜기'로 바꿨습니다."
+    } else { Ok "업데이트라 기존 아이콘을 그대로 씁니다." }
+  } else {
   New-Item -ItemType Directory -Force -Path $DesktopDir | Out-Null
-  $lnk = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $DesktopDir "마케팅 스킬 명령판.lnk"))
+  if (Test-Path $oldLnk) { Remove-Item $oldLnk -Force }   # 다시 설치할 때 옛 이름 아이콘이 겹쳐 남지 않게
+  $lnk = (New-Object -ComObject WScript.Shell).CreateShortcut($newLnk)
   $lnk.TargetPath = Join-Path $env:SystemRoot "System32\wscript.exe"
   $lnk.Arguments = "`"$(Join-Path $InstallDir 'start.vbs')`""
   $lnk.WorkingDirectory = $InstallDir
   $lnk.IconLocation = "$env:SystemRoot\System32\shell32.dll,13"
   $lnk.Description = "마케팅 스킬 명령판 열기"
   $lnk.Save()
-  Ok "'마케팅 스킬 명령판' 아이콘을 만들었습니다."
+  Ok "바탕화면에 '마케팅 스킬 명령판 켜기' 아이콘을 만들었습니다."
   }
 
   # 6. 실행 -----------------------------------------------------------------
@@ -188,11 +197,11 @@ try {
     Start-Process cmd.exe "/c `"`"$(Join-Path $InstallDir 'start.cmd')`" nobrowser`"" -WindowStyle Hidden
     $up = $false
     for ($i = 0; $i -lt 20 -and -not $up; $i++) { Start-Sleep -Milliseconds 500; $up = ServerUp }
-    if ($up) { Ok "새 버전으로 다시 켰습니다." } else { Warn "명령판을 다시 켜지 못했습니다. 바탕화면 아이콘으로 켜 주세요." }
+    if ($up) { Ok "새 버전으로 다시 켰습니다." } else { Warn "명령판을 다시 켜지 못했습니다. 바탕화면의 '마케팅 스킬 명령판 켜기'로 켜 주세요." }
   }
   else {
     Start-Process (Join-Path $env:SystemRoot "System32\wscript.exe") "`"$(Join-Path $InstallDir 'start.vbs')`""
-    Ok "브라우저에 명령판이 열립니다. 다음부터는 바탕화면 아이콘을 누르세요."
+    Ok "브라우저에 명령판이 열립니다. 다음부터는 바탕화면의 '마케팅 스킬 명령판 켜기'를 누르세요."
   }
   Write-Host ""
   Write-Host "설치를 마쳤습니다." -ForegroundColor Green

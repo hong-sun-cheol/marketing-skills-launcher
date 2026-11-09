@@ -8,6 +8,7 @@ if errorlevel 2 exit /b
 call "%~dp0stop.cmd"
 rem If phone access (Tailscale) was turned on, turn off only this launcher's port.
 if exist "%ProgramFiles%\Tailscale\tailscale.exe" "%ProgramFiles%\Tailscale\tailscale.exe" serve --https=__PORT__ off >nul 2>&1
+del "__DESKTOP__\마케팅 스킬 명령판 켜기.lnk" >nul 2>&1
 del "__DESKTOP__\마케팅 스킬 명령판.lnk" >nul 2>&1
 set "TARGET=%~dp0"
 echo 지웠습니다. 이 창은 닫아도 됩니다.

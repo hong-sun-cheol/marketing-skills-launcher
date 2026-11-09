@@ -856,7 +856,7 @@ async function applyUpdate(target) {
   const poll = async () => {
     try { const u = await api("/api/update"); if (u.current === target) return location.reload(); } catch {}
     if (Date.now() < until) return setTimeout(poll, 3000);
-    say("업데이트가 끝나지 않았습니다. 바탕화면 아이콘으로 명령판을 다시 켜 보세요. 계속 안 되면 설치 폴더의 app/logs/update.log 파일을 보내 문의해 주세요.", true);
+    say("업데이트가 끝나지 않았습니다. 바탕화면의 '마케팅 스킬 명령판 켜기' 아이콘으로 다시 켜 보세요. 계속 안 되면 설치 폴더의 app/logs/update.log 파일을 보내 문의해 주세요.", true);
   };
   setTimeout(poll, 4000);
 }

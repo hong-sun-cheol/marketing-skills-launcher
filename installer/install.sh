@@ -116,20 +116,27 @@ ok "${COUNT}개 설치: $SKILL_DEST"
 
 # 5. 바탕화면 아이콘 ---------------------------------------------------------
 step 5 "바탕화면 아이콘 만들기"
-if [ "${UPDATE:-}" = "1" ]; then ok "업데이트라 기존 아이콘을 그대로 씁니다."
+# 옛 판(0.2.0 이하)의 아이콘 이름. 이름만 봐도 켜는 버튼인지 알 수 있게 '켜기'를 붙였다.
+OLD_ICON="$DESKTOP_DIR/마케팅 스킬 명령판.command"
+NEW_ICON="$DESKTOP_DIR/마케팅 스킬 명령판 켜기.command"
+if [ "${UPDATE:-}" = "1" ]; then
+  if [ -f "$OLD_ICON" ] && [ ! -e "$NEW_ICON" ]; then
+    mv "$OLD_ICON" "$NEW_ICON"; ok "아이콘 이름을 '마케팅 스킬 명령판 켜기'로 바꿨습니다."
+  else ok "업데이트라 기존 아이콘을 그대로 씁니다."; fi
 else
   # 아이콘은 설치 폴더의 start.sh를 부르기만 한다. 업데이트로 start.sh가 바뀌어도 그대로 쓸 수 있다.
   mkdir -p "$DESKTOP_DIR"
-  printf '#!/bin/bash\nexec "%s/start.sh"\n' "$INSTALL_DIR" > "$DESKTOP_DIR/마케팅 스킬 명령판.command"
-  chmod +x "$DESKTOP_DIR/마케팅 스킬 명령판.command"
-  ok "'마케팅 스킬 명령판' 아이콘을 만들었습니다."
+  rm -f "$OLD_ICON"   # 다시 설치할 때 옛 이름 아이콘이 겹쳐 남지 않게
+  printf '#!/bin/bash\nexec "%s/start.sh"\n' "$INSTALL_DIR" > "$NEW_ICON"
+  chmod +x "$NEW_ICON"
+  ok "바탕화면에 '마케팅 스킬 명령판 켜기' 아이콘을 만들었습니다."
 fi
 
 # 6. 실행 --------------------------------------------------------------------
 step 6 "명령판 열기"
 if [ "${NO_LAUNCH:-}" = "1" ]; then ok "시험 모드라 열지 않습니다."
 elif [ "${UPDATE:-}" = "1" ]; then "$INSTALL_DIR/start.sh" nobrowser; ok "새 버전으로 다시 켰습니다."
-else "$INSTALL_DIR/start.sh"; ok "브라우저에 명령판이 열립니다. 다음부터는 바탕화면 아이콘을 누르세요."; fi
+else "$INSTALL_DIR/start.sh"; ok "브라우저에 명령판이 열립니다. 다음부터는 바탕화면의 '마케팅 스킬 명령판 켜기'를 누르세요."; fi
 
 printf '\n\033[32m설치를 마쳤습니다.\033[0m\n'
 if ! command -v claude >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/claude" ]; then

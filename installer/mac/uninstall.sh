@@ -9,6 +9,6 @@ read -r -p "계속할까요? (y/n) " a
 for ts in tailscale /Applications/Tailscale.app/Contents/MacOS/Tailscale; do
   if command -v "$ts" >/dev/null 2>&1 || [ -x "$ts" ]; then "$ts" serve --https=__PORT__ off >/dev/null 2>&1; break; fi
 done
-rm -f "__DESKTOP__/마케팅 스킬 명령판.command"
+rm -f "__DESKTOP__/마케팅 스킬 명령판 켜기.command" "__DESKTOP__/마케팅 스킬 명령판.command"
 rm -rf "__INSTALL__"
 echo "지웠습니다."
