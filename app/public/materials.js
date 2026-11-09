@@ -81,12 +81,15 @@ window.AnalysisMaterials = (() => {
       return;
     }
     const select = node("select", { id: "githubRepo", "aria-label": "분석할 GitHub 저장소" });
-    const search = node("input", { type: "search", placeholder: "저장소 이름으로 찾기", "aria-label": "저장소 검색" });
+    // 검색칸은 따로 쓰는 칸이 아니라 바로 밑 목록을 좁히는 칸이다. 몇 개 남았는지 목록 첫 줄에 보여 연결을 드러낸다.
+    const search = node("input", { type: "search", placeholder: "아래 목록에서 이름으로 좁히기", "aria-label": "아래 저장소 목록을 이름으로 좁히기" });
     const fill = () => {
-      const q = search.value.trim().toLowerCase();
-      const first = !listed ? "저장소 목록을 불러오는 중…" : rows.length ? "분석할 저장소를 선택하세요" : "보이는 저장소가 없습니다";
+      const raw = search.value.trim(), q = raw.toLowerCase();
+      const shown = rows.filter(r => r.fullName.toLowerCase().includes(q));
+      const first = !listed ? "저장소 목록을 불러오는 중…" : !rows.length ? "보이는 저장소가 없습니다"
+        : !raw ? "분석할 저장소를 선택하세요" : shown.length ? `'${raw}'이(가) 들어간 저장소 ${shown.length}개 — 선택하세요` : `'${raw}'이(가) 들어간 저장소가 없습니다`;
       select.replaceChildren(node("option", { value: "", text: first }),
-        ...rows.filter(r => r.fullName.toLowerCase().includes(q)).map(r => node("option", { value: r.fullName, text: `${r.fullName}${r.private ? " (비공개)" : ""}` })));
+        ...shown.map(r => node("option", { value: r.fullName, text: `${r.fullName}${r.private ? " (비공개)" : ""}` })));
     };
     search.addEventListener("input", fill); fill();
     const attachNote = node("p", { class: "status", role: "status", "aria-live": "polite" });
@@ -96,7 +99,7 @@ window.AnalysisMaterials = (() => {
           await request("/api/github", { method: "DELETE" }); connected = false; listed = false; repositories = []; rows = []; discovery = ""; renderGithub();
           msg.textContent = "GitHub 연결과 현재 코드 선택을 해제했습니다. 과거 분석 자료는 작업 폴더에 남습니다.";
         }, "연결을 해제하는 중…"))),
-      search, select,
+      node("div", { class: "material-pick" }, search, select),
       node("div", { class: "actions" }, button("선택한 코드 첨부", () => {
         if (!select.value) {
           attachNote.className = "status warn";

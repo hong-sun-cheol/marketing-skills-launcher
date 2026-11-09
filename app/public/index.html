@@ -251,6 +251,10 @@ details[open] summary { margin-bottom: 4px; }
 .material-finder { display: grid; gap: 10px; padding-top: 14px; margin-top: 4px; border-top: 1px solid var(--line); }
 .material-chosen { display: grid; gap: 10px; }
 .material-github input, .material-github select { width: 100%; min-width: 0; }
+/* 검색칸과 저장소 목록을 한 덩어리로 붙인다: 검색칸은 목록을 좁히는 용도 */
+.material-pick { display: grid; gap: 0; min-width: 0; }
+.material-pick input { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-style: dashed; font-size: 0.92em; }
+.material-pick select { border-top-left-radius: 0; border-top-right-radius: 0; border-top: 0; }
 .material-github details > * + * { margin-top: 10px; }
 .material-repo { padding: 12px; background: var(--accent-soft); border-radius: 8px; overflow-wrap: anywhere; }
 .material-repo button { margin: 8px 6px 0 0; }
