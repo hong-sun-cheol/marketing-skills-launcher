@@ -119,7 +119,7 @@ window.AnalysisMaterials = (() => {
     const report = node("p", { class: "ds", role: "status", style: "white-space:pre-wrap", text: discovery });
     const finder = node("div", { class: "material-finder" },
       node("label", { for: "relatedCodeRequest", text: "Claude에게 관련 코드 찾기 요청" }), input,
-      node("p", { class: "ds", text: "사이트 이름과 원하는 코드 범위만 적으세요. Claude가 저장소 목록과 주요 코드의 연결 관계를 살펴보고 관련 코드를 자동 첨부합니다. 이 단계에도 Claude 계정 사용량이 발생합니다." }),
+      // 버튼은 입력창 바로 밑, 그 밑에 진행·결과(report), 설명은 맨 아래
       button("관련 코드 찾아서 첨부", () => action(async () => {
         if (!instruction.trim()) throw new Error("찾을 사이트 이름과 관련 코드에 대한 요청을 적어 주세요.");
         const found = await request("/api/github/discover", { method: "POST", body: JSON.stringify({ instruction }) });
@@ -134,7 +134,8 @@ window.AnalysisMaterials = (() => {
         const head = found.materials.length ? `관련 코드 찾기를 마쳤습니다. 현재 ${repositories.length}개 저장소가 첨부되어 있습니다(아래 목록).` : "새로 첨부한 저장소가 없습니다. 아래 찾기 결과를 확인해 주세요.";
         discovery = [head, found.message, ...found.warnings, ...(skipped.length ? ["첨부 한도 때문에 제외됨: " + skipped.join(", ") + ". 기존 첨부를 제거한 뒤 다시 요청해 주세요."] : [])].join("\n");
         report.textContent = discovery;
-      }, "Claude가 저장소와 코드 연결을 확인하는 중… 몇 분 걸릴 수 있습니다.", report)), report);
+      }, "Claude가 저장소와 코드 연결을 확인하는 중… 몇 분 걸릴 수 있습니다.", report)), report,
+      node("p", { class: "ds", text: "사이트 이름과 원하는 코드 범위만 적으세요. Claude가 저장소 목록과 주요 코드의 연결 관계를 살펴보고 관련 코드를 자동 첨부합니다. 이 단계에도 Claude 계정 사용량이 발생합니다." }));
     githubBox.append(finder);
     if (busy) githubBox.querySelectorAll("button, input, select, textarea").forEach(n => { n.disabled = true; });
   }
